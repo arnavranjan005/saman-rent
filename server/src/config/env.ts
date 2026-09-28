@@ -8,6 +8,9 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().optional(),
   DIRECT_URL: z.string().optional(),
   JWT_SECRET: z.string().optional(),
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
 });
 
 export const env = EnvSchema.parse(process.env);
