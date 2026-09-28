@@ -10,10 +10,10 @@ import SaveHeart from '../components/SaveHeart';
 import { resolveImage } from '../lib/serviceImage';
 
 const STATS = [
-  ['10+ Years', 'Experience'],
-  ['50+ Events', 'Completed'],
-  ['2', 'Team Size'],
-  ['All India', 'Available'],
+  ['10+ Years', 'Experience', 'briefcase-outline'],
+  ['50+ Events', 'Completed', 'calendar-outline'],
+  ['2', 'Team Size', 'people-outline'],
+  ['All India', 'Available', 'location-outline'],
 ];
 
 export default function DetailsScreen() {
@@ -34,6 +34,11 @@ export default function DetailsScreen() {
   }
 
   const openBooking = () => router.push({ pathname: '/booking', params: { id: v.id } });
+  const gallery = v.images?.length ? v.images : [{ url: v.hero || v.img }];
+  const [heroIdx, setHeroIdx] = React.useState(0);
+  const hero = gallery[Math.min(heroIdx, gallery.length - 1)];
+  const visibleThumbs = gallery.slice(0, 4);
+  const extraCount = gallery.length - visibleThumbs.length;
   const shareService = () =>
     Share.share({
       title: v.name,
@@ -43,7 +48,7 @@ export default function DetailsScreen() {
     <View className="flex-1 bg-white">
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         <ImageBackground
-          source={resolveImage(v.hero || v.img)}
+          source={resolveImage(hero?.url)}
           className="h-[250px] w-full p-3.5 pt-[35px] justify-between"
           resizeMode="cover"
         >
@@ -60,6 +65,34 @@ export default function DetailsScreen() {
             </View>
           </View>
         </ImageBackground>
+        {gallery.length > 1 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="flex-row px-4 -mt-6"
+            testID="gallery-strip"
+          >
+            {visibleThumbs.map((img, i) => (
+              <TouchableOpacity
+                key={img.id ?? img.url ?? i}
+                onPress={() => setHeroIdx(i)}
+                testID={`gallery-thumb-${i}`}
+                className={`mr-2 rounded-xl overflow-hidden border-2 ${i === heroIdx ? 'border-primary' : 'border-white'}`}
+              >
+                <Image
+                  source={resolveImage(img.url)}
+                  className="w-[64px] h-[64px]"
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+            ))}
+            {extraCount > 0 && (
+              <View className="w-[64px] h-[64px] rounded-xl bg-black/60 items-center justify-center">
+                <Text className="text-white font-bold">+{extraCount}</Text>
+              </View>
+            )}
+          </ScrollView>
+        )}
         <View className="p-4">
           <Text className="font-extrabold text-[19px]">{v.name}</Text>
           <Text className="text-xs mt-1">
@@ -76,9 +109,10 @@ export default function DetailsScreen() {
               'We provide best services for weddings, parties, birthdays & all types of events.'}
           </Text>
           <View className="flex-row justify-between mt-3 bg-[#F6F5FF] rounded-xl p-3">
-            {STATS.map(([a, b]) => (
-              <View key={b} className="items-center">
-                <Text className="font-bold text-xs">{a}</Text>
+            {STATS.map(([a, b, icon]) => (
+              <View key={b} className="items-center flex-1">
+                <Ionicons name={icon} size={18} color={COLORS.primary} />
+                <Text className="font-bold text-xs mt-1">{a}</Text>
                 <Text className="text-[10px] text-[#666]">{b}</Text>
               </View>
             ))}

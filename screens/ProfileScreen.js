@@ -9,6 +9,7 @@ import { resolveImage } from '../lib/serviceImage';
 
 const MENU = [
   { label: 'My Wishlist', icon: 'heart-outline', route: '/(tabs)/wishlist' },
+  { label: 'Vendor Mode', icon: 'storefront-outline', route: '/(vendor)' },
   { label: 'Help & Support', icon: 'help-circle-outline', route: '/help' },
   { label: 'About Us', icon: 'information-circle-outline', route: '/about' },
   { label: 'Log Out', icon: 'log-out-outline' },
@@ -98,11 +99,13 @@ export default function ProfileScreen() {
               ? 'profile-menu-logout'
               : m.label === 'My Wishlist'
                 ? 'profile-menu-wishlist'
-                : m.label === 'Help & Support'
-                  ? 'profile-menu-help'
-                  : m.label === 'About Us'
-                    ? 'profile-menu-about'
-                    : undefined
+                : m.label === 'Vendor Mode'
+                  ? 'profile-menu-vendor'
+                  : m.label === 'Help & Support'
+                    ? 'profile-menu-help'
+                    : m.label === 'About Us'
+                      ? 'profile-menu-about'
+                      : undefined
           }
         >
           <View className="flex-row items-center">

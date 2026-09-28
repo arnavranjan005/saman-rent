@@ -12,14 +12,14 @@ export class ApiError extends Error {
 
 async function request(
   path,
-  { method = 'GET', body, auth = true, timeout = API_TIMEOUT_MS } = {},
+  { method = 'GET', body, auth = true, timeout = API_TIMEOUT_MS, getToken: getTokenFn } = {},
 ) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
   try {
     const headers = { 'Content-Type': 'application/json' };
     if (auth) {
-      const token = await getToken();
+      const token = getTokenFn ? await getTokenFn() : await getToken();
       if (token) headers.Authorization = `Bearer ${token}`;
     }
     const res = await fetch(`${API_BASE_URL}${path}`, {
