@@ -20,7 +20,7 @@ npm-debug.log*
 server/.env
 server/.env*.local
 !.env.example
-server/.env.example
+!server/.env.example
 
 # OS / editor
 .DS_Store
