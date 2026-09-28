@@ -16,6 +16,12 @@ const serviceInclude = {
   category: { select: { id: true, name: true } },
 };
 
+/** Raw image reference passthrough — the Expo app resolves
+ *  `seed://` markers to local assets and https:// to remote URIs. */
+export function resolveImageUrl(ref?: string | null): string | null {
+  return ref ?? null;
+}
+
 /** Card shape the Expo app renders (mirrors the old VENDORS mock). */
 export function toCard(s: {
   id: string;

@@ -15,8 +15,8 @@ export const bookingKeys = {
   detail: (id) => ['bookings', id],
 };
 
-export function useBookings() {
-  return useQuery({ queryKey: bookingKeys.list, queryFn: fetchBookings });
+export function useBookings(enabled = true) {
+  return useQuery({ queryKey: bookingKeys.list, queryFn: fetchBookings, enabled });
 }
 
 export function useBooking(id) {
