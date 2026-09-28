@@ -8,11 +8,9 @@ import { useBookings } from '../hooks/useBookings';
 import { resolveImage } from '../lib/serviceImage';
 
 const MENU = [
-  { label: 'My Wishlist', icon: 'heart-outline' },
-  { label: 'Address Book', icon: 'location-outline' },
-  { label: 'Payment Methods', icon: 'card-outline' },
-  { label: 'Help & Support', icon: 'help-circle-outline' },
-  { label: 'About Us', icon: 'information-circle-outline' },
+  { label: 'My Wishlist', icon: 'heart-outline', route: '/(tabs)/wishlist' },
+  { label: 'Help & Support', icon: 'help-circle-outline', route: '/help' },
+  { label: 'About Us', icon: 'information-circle-outline', route: '/about' },
   { label: 'Log Out', icon: 'log-out-outline' },
 ];
 const badge = (st) =>
@@ -48,7 +46,6 @@ export default function ProfileScreen() {
             {me?.name ?? (me ? 'SamanRent User' : 'Guest')}
           </Text>
           <Text className="text-xs text-[#666]">{me?.phone ?? 'Log in to book services'}</Text>
-          <Text className="text-primary text-xs font-semibold">Edit Profile</Text>
         </View>
         <Text> </Text>
         <TouchableOpacity
@@ -94,18 +91,18 @@ export default function ProfileScreen() {
           key={m.label}
           className="flex-row justify-between items-center py-3 border-b border-[#F0F0F0]"
           onPress={
-            m.label === 'Log Out'
-              ? handleAuthAction
-              : m.label === 'My Wishlist'
-                ? () => goTab('wishlist')
-                : undefined
+            m.label === 'Log Out' ? handleAuthAction : () => router.push(m.route)
           }
           testID={
             m.label === 'Log Out'
               ? 'profile-menu-logout'
               : m.label === 'My Wishlist'
                 ? 'profile-menu-wishlist'
-                : undefined
+                : m.label === 'Help & Support'
+                  ? 'profile-menu-help'
+                  : m.label === 'About Us'
+                    ? 'profile-menu-about'
+                    : undefined
           }
         >
           <View className="flex-row items-center">

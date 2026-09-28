@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ImageBackground, Share } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, fmt } from '../data/mock';
@@ -34,6 +34,11 @@ export default function DetailsScreen() {
   }
 
   const openBooking = () => router.push({ pathname: '/booking', params: { id: v.id } });
+  const shareService = () =>
+    Share.share({
+      title: v.name,
+      message: `${v.name} — ${v.location}\n${fmt(v.price)} onwards on SamanRent`,
+    });
   return (
     <View className="flex-1 bg-white">
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
@@ -49,7 +54,9 @@ export default function DetailsScreen() {
             <View className="flex-row items-center">
               <SaveHeart serviceId={v.id} size={22} dark />
               <View className="w-3" />
-              <Ionicons name="share-outline" size={22} color="#fff" />
+              <TouchableOpacity onPress={shareService} testID="share-btn">
+                <Ionicons name="share-outline" size={22} color="#fff" />
+              </TouchableOpacity>
             </View>
           </View>
         </ImageBackground>

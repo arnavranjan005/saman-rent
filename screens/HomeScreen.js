@@ -14,6 +14,7 @@ export default function HomeScreen() {
   const categories = useCategories();
   const openCategory = (id) => router.push({ pathname: '/category', params: { id } });
   const openDetails = (v) => router.push({ pathname: '/details', params: { id: v.id } });
+  const openSearch = () => router.push('/(tabs)/search');
 
   if (home.isPending || categories.isPending) return <LoadingState testID="home-loading" />;
   if (home.isError || categories.isError) {
@@ -62,7 +63,9 @@ export default function HomeScreen() {
       </View>
       <View className="flex-row justify-between mt-4 mb-2.5">
         <Text className="font-bold text-[15px]">Top Categories</Text>
-        <Text className="text-primary text-xs">View All</Text>
+        <TouchableOpacity onPress={openSearch} testID="home-viewall-cats">
+          <Text className="text-primary text-xs">View All</Text>
+        </TouchableOpacity>
       </View>
       <View className="flex-row justify-between">
         {cats.map((c) => (
@@ -84,7 +87,9 @@ export default function HomeScreen() {
       </View>
       <View className="flex-row justify-between mt-4 mb-2.5">
         <Text className="font-bold text-[15px]">Popular Near You</Text>
-        <Text className="text-primary text-xs">View All</Text>
+        <TouchableOpacity onPress={openSearch} testID="home-viewall-popular">
+          <Text className="text-primary text-xs">View All</Text>
+        </TouchableOpacity>
       </View>
       {popular.map((v) => (
         <VendorCard key={v.id} v={v} onPress={() => openDetails(v)} />

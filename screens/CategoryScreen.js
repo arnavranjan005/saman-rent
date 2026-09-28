@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import VendorCard from '../components/VendorCard';
@@ -20,12 +20,16 @@ export default function CategoryScreen({ showBack = true }) {
   const goBack = () => router.back();
   const openDetails = (v) => router.push({ pathname: '/details', params: { id: v.id } });
   const [f, setF] = useState('All');
-  const params =
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [q, setQ] = useState('');
+  const baseParams =
     f === 'Popular'
       ? { category: catId, tag: 'Popular' }
       : f === 'Price Low to High'
         ? { category: catId, sort: 'price_asc' }
         : { category: catId };
+  const params = q ? { ...baseParams, q } : baseParams;
   const { data, isPending, isError, error, refetch } = useServices(params);
   const list = data?.items ?? [];
   return (
@@ -39,8 +43,47 @@ export default function CategoryScreen({ showBack = true }) {
           <View className="w-[22px]" />
         )}
         <Text className="font-bold text-base">{catName}</Text>
-        <Ionicons name="search" size={22} color="#000" />
+        <TouchableOpacity
+          onPress={() => {
+            if (searchOpen) {
+              setSearchOpen(false);
+              setSearchText('');
+              setQ('');
+            } else {
+              setSearchOpen(true);
+            }
+          }}
+          testID="search-toggle-btn"
+        >
+          <Ionicons name={searchOpen ? 'close' : 'search'} size={22} color="#000" />
+        </TouchableOpacity>
       </View>
+      {searchOpen && (
+        <View className="flex-row items-center border border-[#DDD] rounded-[10px] px-3 mb-3">
+          <Ionicons name="search" size={18} color="#999" />
+          <TextInput
+            className="flex-1 p-3 text-sm"
+            placeholder="Search services…"
+            value={searchText}
+            onChangeText={setSearchText}
+            onSubmitEditing={() => setQ(searchText.trim())}
+            returnKeyType="search"
+            autoFocus
+            testID="search-input"
+          />
+          {searchText.length > 0 && (
+            <TouchableOpacity
+              onPress={() => {
+                setSearchText('');
+                setQ('');
+              }}
+              testID="search-clear-btn"
+            >
+              <Ionicons name="close-circle" size={18} color="#999" />
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
       <View className="flex-row mb-3">
         {FILTERS.map((c) => (
           <TouchableOpacity
