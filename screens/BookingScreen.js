@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, fmt } from '../data/mock';
@@ -43,19 +43,22 @@ export default function BookingScreen() {
 
   if (!me) {
     return (
-      <View style={s.wrap}>
-        <View style={s.header}>
-          <TouchableOpacity onPress={goBack} testID="booking-back"><Ionicons name="arrow-back" size={22} color="#000" /></TouchableOpacity>
-          <Text style={s.title}>Book Now</Text><Text style={s.back}> </Text>
+      <View className="flex-1 bg-white p-3.5">
+        <View className="flex-row justify-between mt-2 mb-2.5">
+          <TouchableOpacity onPress={goBack} testID="booking-back">
+            <Ionicons name="arrow-back" size={22} color="#000" />
+          </TouchableOpacity>
+          <Text className="font-bold text-base">Book Now</Text>
+          <Text className="text-[22px]"> </Text>
         </View>
-        <View style={s.auth}>
-          <Text style={s.authT}>Log in to send a booking request.</Text>
+        <View className="flex-1 items-center justify-center p-6">
+          <Text className="text-sm text-[#555] mb-3">Log in to send a booking request.</Text>
           <TouchableOpacity
-            style={s.btn}
+            className="bg-primary rounded-xl p-[15px] items-center"
             onPress={() => router.push('/login')}
             testID="booking-login-btn"
           >
-            <Text style={s.btnT}>Log In</Text>
+            <Text className="text-white font-bold">Log In</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -63,100 +66,124 @@ export default function BookingScreen() {
   }
 
   const submit = () => {
-    create.mutate(
-      {
-        serviceId: v.id,
-        date,
-        startTime,
-        duration: hours,
-        location: loc,
-        eventType,
-        notes: notes || undefined,
-      },
-      { onSuccess: () => {} },
-    );
+    create.mutate({
+      serviceId: v.id,
+      date,
+      startTime,
+      duration: hours,
+      location: loc,
+      eventType,
+      notes: notes || undefined,
+    });
   };
 
   const booking = create.data;
 
   return (
-    <View style={s.wrap}>
-      <View style={s.header}>
-        <TouchableOpacity onPress={goBack} testID="booking-back"><Ionicons name="arrow-back" size={22} color="#000" /></TouchableOpacity>
-        <Text style={s.title}>Book Now</Text><Text style={s.back}> </Text>
+    <View className="flex-1 bg-white p-3.5">
+      <View className="flex-row justify-between mt-2 mb-2.5">
+        <TouchableOpacity onPress={goBack} testID="booking-back">
+          <Ionicons name="arrow-back" size={22} color="#000" />
+        </TouchableOpacity>
+        <Text className="font-bold text-base">Book Now</Text>
+        <Text className="text-[22px]"> </Text>
       </View>
       <ScrollView contentContainerStyle={{ paddingBottom: 110 }}>
-        <View style={s.sum}>
-          <Image source={resolveImage(v.img)} style={s.thumb} />
-          <View><Text style={s.sumN}>{v.name}</Text><Text style={s.sumP}>{fmt(v.price)} Onwards</Text><Text style={s.sumL}><Ionicons name="location-outline" size={11} color="#666" /> {v.location}</Text></View>
+        <View className="flex-row bg-[#F6F5FF] rounded-[14px] p-3 items-center">
+          <Image source={resolveImage(v.img)} className="w-[60px] h-[60px] rounded-xl mr-2.5" />
+          <View>
+            <Text className="font-bold">{v.name}</Text>
+            <Text className="text-primary font-bold">{fmt(v.price)} Onwards</Text>
+            <Text className="text-[11px] text-[#666]">
+              <Ionicons name="location-outline" size={11} color="#666" /> {v.location}
+            </Text>
+          </View>
         </View>
-        <Text style={s.fLabel}>Event Date (YYYY-MM-DD)</Text>
-        <TextInput style={s.fBox} value={date} onChangeText={setDate} testID="field-date" />
-        <Text style={s.fLabel}>Event Time (HH:MM, 24h)</Text>
-        <TextInput style={s.fBox} value={startTime} onChangeText={setStartTime} testID="field-time" />
-        <Text style={s.fLabel}>Duration (hours)</Text>
-        <View style={s.durRow}>
+        <Text className="font-semibold text-[13px] mt-3 mb-1.5">Event Date (YYYY-MM-DD)</Text>
+        <TextInput
+          className="border border-[#DDD] rounded-[10px] p-3 text-sm"
+          value={date}
+          onChangeText={setDate}
+          testID="field-date"
+        />
+        <Text className="font-semibold text-[13px] mt-3 mb-1.5">Event Time (HH:MM, 24h)</Text>
+        <TextInput
+          className="border border-[#DDD] rounded-[10px] p-3 text-sm"
+          value={startTime}
+          onChangeText={setStartTime}
+          testID="field-time"
+        />
+        <Text className="font-semibold text-[13px] mt-3 mb-1.5">Duration (hours)</Text>
+        <View className="flex-row items-center">
           <TouchableOpacity
-            style={s.durBtn}
+            className="border border-[#DDD] rounded-[10px] w-[46px] h-[46px] items-center justify-center"
             onPress={() => setDuration(String(Math.max(1, hours - 1)))}
             testID="duration-minus"
           >
-            <Text style={s.durBtnT}>−</Text>
+            <Text className="text-xl font-bold text-primary">−</Text>
           </TouchableOpacity>
           <TextInput
-            style={[s.fBox, s.durInput]}
+            className="border border-[#DDD] rounded-[10px] p-3 text-sm flex-1 mx-2 text-center"
             value={String(hours)}
             keyboardType="number-pad"
             onChangeText={(t) => setDuration(t.replace(/\D/g, ''))}
             testID="field-duration"
           />
           <TouchableOpacity
-            style={s.durBtn}
+            className="border border-[#DDD] rounded-[10px] w-[46px] h-[46px] items-center justify-center"
             onPress={() => setDuration(String(Math.min(24, hours + 1)))}
             testID="duration-plus"
           >
-            <Text style={s.durBtnT}>+</Text>
+            <Text className="text-xl font-bold text-primary">+</Text>
           </TouchableOpacity>
         </View>
-        <Text style={s.fLabel}>Location</Text>
+        <Text className="font-semibold text-[13px] mt-3 mb-1.5">Location</Text>
         <TextInput
-          style={s.fBox}
+          className="border border-[#DDD] rounded-[10px] p-3 text-sm"
           value={loc}
           onChangeText={setLocation}
           placeholder={v.location}
           testID="field-loc"
         />
-        <Text style={s.fLabel}>Event Type</Text>
-        <TextInput style={s.fBox} value={eventType} onChangeText={setEventType} testID="field-type" />
-        <Text style={s.fLabel}>Additional Notes (Optional)</Text>
+        <Text className="font-semibold text-[13px] mt-3 mb-1.5">Event Type</Text>
         <TextInput
-          style={s.notes}
+          className="border border-[#DDD] rounded-[10px] p-3 text-sm"
+          value={eventType}
+          onChangeText={setEventType}
+          testID="field-type"
+        />
+        <Text className="font-semibold text-[13px] mt-3 mb-1.5">Additional Notes (Optional)</Text>
+        <TextInput
+          className="border border-[#DDD] rounded-[10px] p-3 min-h-[60px]"
           placeholder="Write something..."
           value={notes}
           onChangeText={setNotes}
           testID="field-notes"
           multiline
         />
-        <View style={s.total}><Text>Total Price</Text><Text style={s.totalP}>{fmt(v.price * hours)}</Text></View>
+        <View className="flex-row justify-between mt-4">
+          <Text>Total Price</Text>
+          <Text className="text-leaf font-extrabold text-base">{fmt(v.price * hours)}</Text>
+        </View>
         {create.isError && (
-          <Text style={s.err} testID="booking-error-msg">
+          <Text className="text-danger mt-3 font-semibold" testID="booking-error-msg">
             {create.error?.message ?? 'Could not send the booking request.'}
           </Text>
         )}
         {booking && (
-          <Text style={s.ok} testID="booking-done">
+          <Text className="text-leaf mt-3 font-bold" testID="booking-done">
             ✓ Booking request sent! ID {booking.id}. Vendor will confirm shortly.
           </Text>
         )}
       </ScrollView>
-      <View style={s.footer}>
+      <View className="absolute bottom-0 left-0 right-0 p-3.5 bg-white">
         <TouchableOpacity
-          style={[s.btn, (create.isPending || booking) && s.btnOff]}
+          className={`bg-primary rounded-xl p-[15px] items-center ${create.isPending || booking ? 'opacity-60' : ''}`}
           testID="send-booking-btn"
           onPress={submit}
           disabled={create.isPending || Boolean(booking)}
         >
-          <Text style={s.btnT}>
+          <Text className="text-white font-bold">
             {create.isPending ? 'Sending…' : booking ? 'Request Sent' : 'Send Booking Request'}
           </Text>
         </TouchableOpacity>
@@ -164,28 +191,3 @@ export default function BookingScreen() {
     </View>
   );
 }
-const s = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: '#fff', padding: 14 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8, marginBottom: 10 },
-  back: { fontSize: 22 }, title: { fontWeight: '700', fontSize: 16 },
-  sum: { flexDirection: 'row', backgroundColor: '#F6F5FF', borderRadius: 14, padding: 12, alignItems: 'center' },
-  thumb: { width: 60, height: 60, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
-  sumN: { fontWeight: '700' }, sumP: { color: COLORS.primary, fontWeight: '700' }, sumL: { fontSize: 11, color: '#666' },
-  fLabel: { fontWeight: '600', fontSize: 13, marginTop: 12, marginBottom: 6 },
-  fBox: { borderWidth: 1, borderColor: '#DDD', borderRadius: 10, padding: 12, fontSize: 14 },
-  durRow: { flexDirection: 'row', alignItems: 'center' },
-  durBtn: { borderWidth: 1, borderColor: '#DDD', borderRadius: 10, width: 46, height: 46, alignItems: 'center', justifyContent: 'center' },
-  durBtnT: { fontSize: 20, fontWeight: '700', color: COLORS.primary },
-  durInput: { flex: 1, marginHorizontal: 8, textAlign: 'center' },
-  notes: { borderWidth: 1, borderColor: '#DDD', borderRadius: 10, padding: 12, minHeight: 60 },
-  total: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
-  totalP: { color: COLORS.green, fontWeight: '800', fontSize: 16 },
-  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 14, backgroundColor: '#fff' },
-  btn: { backgroundColor: COLORS.primary, borderRadius: 12, padding: 15, alignItems: 'center' },
-  btnOff: { opacity: 0.6 },
-  btnT: { color: '#fff', fontWeight: '700' },
-  ok: { color: COLORS.green, marginTop: 12, fontWeight: '700' },
-  err: { color: COLORS.red, marginTop: 12, fontWeight: '600' },
-  auth: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  authT: { fontSize: 14, color: '#555', marginBottom: 12 },
-});

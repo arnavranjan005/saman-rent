@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -68,22 +67,24 @@ export default function VerifyOtpScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={s.wrap}
+      className="flex-1 bg-white p-5 pt-10"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <TouchableOpacity onPress={() => router.back()} testID="verify-back">
         <Ionicons name="arrow-back" size={22} color="#000" />
       </TouchableOpacity>
-      <Text style={s.title}>Enter OTP</Text>
-      <Text style={s.sub}>Sent to +91 {phone}</Text>
-      <View style={s.boxes} testID="otp-input">
+      <Text className="font-extrabold text-[22px] mt-4">Enter OTP</Text>
+      <Text className="text-[#666] text-[13px] mt-1.5">Sent to +91 {phone}</Text>
+      <View className="flex-row justify-between mt-6" testID="otp-input">
         {digits.map((d, i) => (
           <TextInput
             key={i}
             ref={(r) => {
               refs.current[i] = r;
             }}
-            style={[s.box, focused === i && s.boxFocus, d ? s.boxFill : null]}
+            className={`w-12 h-14 border-[1.5px] rounded-xl text-[22px] font-bold text-center text-[#111] bg-[#FAFAFA] ${
+              focused === i || d ? 'border-primary bg-white' : 'border-[#DDD]'
+            }`}
             keyboardType="number-pad"
             maxLength={6}
             value={d}
@@ -97,25 +98,27 @@ export default function VerifyOtpScreen() {
         ))}
       </View>
       {verify.isError && (
-        <Text style={s.err} testID="verify-error">
+        <Text className="text-danger mt-3 font-semibold" testID="verify-error">
           {verify.error?.message ?? 'Incorrect OTP. Try again.'}
         </Text>
       )}
       {verify.data && (
-        <Text style={s.ok} testID="login-success">
+        <Text className="text-leaf mt-3 font-bold" testID="login-success">
           Logged in successfully.
         </Text>
       )}
       <TouchableOpacity
-        style={[s.btn, (!complete || verify.isPending) && s.btnOff]}
+        className={`bg-primary rounded-xl p-[15px] items-center mt-5 ${!complete || verify.isPending ? 'opacity-50' : ''}`}
         onPress={submit}
         disabled={!complete || verify.isPending}
         testID="verify-otp-btn"
       >
-        <Text style={s.btnT}>{verify.isPending ? 'Verifying…' : 'Verify & Log In'}</Text>
+        <Text className="text-white font-bold">
+          {verify.isPending ? 'Verifying…' : 'Verify & Log In'}
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={s.resend}
+        className="items-center mt-3.5"
         onPress={() => {
           setDigits(Array(LEN).fill(''));
           focusBox(0);
@@ -124,48 +127,10 @@ export default function VerifyOtpScreen() {
         disabled={resend.isPending}
         testID="resend-otp-btn"
       >
-        <Text style={s.resendT}>
+        <Text className="text-primary font-bold">
           {resend.isPending ? 'Resending…' : 'Resend OTP'}
         </Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 }
-
-const s = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: '#fff', padding: 20, paddingTop: 40 },
-  title: { fontWeight: '800', fontSize: 22, marginTop: 16 },
-  sub: { color: '#666', fontSize: 13, marginTop: 6 },
-  boxes: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 24,
-  },
-  box: {
-    width: 48,
-    height: 56,
-    borderWidth: 1.5,
-    borderColor: '#DDD',
-    borderRadius: 12,
-    fontSize: 22,
-    fontWeight: '700',
-    textAlign: 'center',
-    color: '#111',
-    backgroundColor: '#FAFAFA',
-  },
-  boxFocus: { borderColor: COLORS.primary, backgroundColor: '#fff' },
-  boxFill: { borderColor: COLORS.primary },
-  err: { color: COLORS.red, marginTop: 12, fontWeight: '600' },
-  ok: { color: COLORS.green, marginTop: 12, fontWeight: '700' },
-  btn: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 12,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  btnOff: { opacity: 0.5 },
-  btnT: { color: '#fff', fontWeight: '700' },
-  resend: { alignItems: 'center', marginTop: 14 },
-  resendT: { color: COLORS.primary, fontWeight: '700' },
-});

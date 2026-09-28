@@ -1,6 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS } from '../data/mock';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 export default function ErrorState({
   message = 'Something went wrong. Please try again.',
@@ -8,25 +7,17 @@ export default function ErrorState({
   testID = 'error-state',
 }) {
   return (
-    <View style={s.wrap} testID={testID}>
-      <Text style={s.msg}>{message}</Text>
+    <View className="flex-1 items-center justify-center p-6" testID={testID}>
+      <Text className="text-danger text-center mb-3">{message}</Text>
       {onRetry && (
-        <TouchableOpacity style={s.btn} onPress={onRetry} testID="error-retry-btn">
-          <Text style={s.btnT}>Retry</Text>
+        <TouchableOpacity
+          className="bg-primary rounded-[10px] px-5 py-2.5"
+          onPress={onRetry}
+          testID="error-retry-btn"
+        >
+          <Text className="text-white font-bold">Retry</Text>
         </TouchableOpacity>
       )}
     </View>
   );
 }
-
-const s = StyleSheet.create({
-  wrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  msg: { color: COLORS.red, textAlign: 'center', marginBottom: 12 },
-  btn: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
-  btnT: { color: '#fff', fontWeight: '700' },
-});

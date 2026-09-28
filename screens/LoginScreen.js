@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -28,17 +27,19 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={s.wrap}
+      className="flex-1 bg-white p-5 justify-center"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={s.icon}>
+      <View className="w-[72px] h-[72px] rounded-full bg-[#F6F5FF] items-center justify-center mb-4">
         <Ionicons name="phone-portrait-outline" size={40} color={COLORS.primary} />
       </View>
-      <Text style={s.title}>Log in to SamanRent</Text>
-      <Text style={s.sub}>Enter your mobile number. We will send a 6-digit OTP.</Text>
-      <Text style={s.label}>Mobile Number</Text>
+      <Text className="font-extrabold text-[22px]">Log in to SamanRent</Text>
+      <Text className="text-[#666] text-[13px] mt-1.5">
+        Enter your mobile number. We will send a 6-digit OTP.
+      </Text>
+      <Text className="font-semibold text-[13px] mt-5 mb-1.5">Mobile Number</Text>
       <TextInput
-        style={s.input}
+        className="border border-[#DDD] rounded-[10px] p-3.5 text-base"
         placeholder="10-digit mobile number"
         keyboardType="number-pad"
         maxLength={13}
@@ -47,53 +48,20 @@ export default function LoginScreen() {
         testID="login-phone-input"
       />
       {sendOtp.isError && (
-        <Text style={s.err} testID="login-error">
+        <Text className="text-danger mt-2.5 font-semibold" testID="login-error">
           {sendOtp.error?.message ?? 'Could not send OTP. Try again.'}
         </Text>
       )}
       <TouchableOpacity
-        style={[s.btn, sendOtp.isPending && s.btnOff]}
+        className={`bg-primary rounded-xl p-[15px] items-center mt-4 ${sendOtp.isPending ? 'opacity-60' : ''}`}
         onPress={submit}
         disabled={sendOtp.isPending}
         testID="send-otp-btn"
       >
-        <Text style={s.btnT}>
+        <Text className="text-white font-bold">
           {sendOtp.isPending ? 'Sending OTP…' : 'Send OTP'}
         </Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 }
-
-const s = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: '#fff', padding: 20, justifyContent: 'center' },
-  icon: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: '#F6F5FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  title: { fontWeight: '800', fontSize: 22 },
-  sub: { color: '#666', fontSize: 13, marginTop: 6 },
-  label: { fontWeight: '600', fontSize: 13, marginTop: 20, marginBottom: 6 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderRadius: 10,
-    padding: 14,
-    fontSize: 16,
-  },
-  err: { color: COLORS.red, marginTop: 10, fontWeight: '600' },
-  btn: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 12,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  btnOff: { opacity: 0.6 },
-  btnT: { color: '#fff', fontWeight: '700' },
-});

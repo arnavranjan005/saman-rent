@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, fmt } from '../data/mock';
 import ErrorState from '../components/ErrorState';
@@ -24,15 +17,21 @@ const badge = (st) =>
 
 function BookingRow({ b, onOpen }) {
   return (
-    <TouchableOpacity style={s.card} onPress={() => onOpen(b.id)} testID={`booking-${b.id}`}>
-      <View style={{ flex: 1 }}>
-        <Text style={s.bN}>{b.service.name}</Text>
-        <Text style={s.bD}>
+    <TouchableOpacity
+      className="flex-row bg-[#F8F7FF] rounded-xl p-3 mb-2.5 items-center"
+      onPress={() => onOpen(b.id)}
+      testID={`booking-${b.id}`}
+    >
+      <View className="flex-1">
+        <Text className="font-bold text-sm">{b.service.name}</Text>
+        <Text className="text-xs text-[#666] mt-0.5">
           {b.date} · {b.startTime} · {b.duration}h
         </Text>
-        <Text style={s.bD}>{fmt(b.total)}</Text>
+        <Text className="text-xs text-[#666] mt-0.5">{fmt(b.total)}</Text>
       </View>
-      <Text style={[s.badge, { color: badge(b.status) }]}>{b.status}</Text>
+      <Text className="text-[11px] font-extrabold" style={{ color: badge(b.status) }}>
+        {b.status}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -64,55 +63,57 @@ function BookingDetail({ id, onClose }) {
   };
 
   return (
-    <ScrollView style={s.wrap} contentContainerStyle={{ paddingBottom: 20 }}>
+    <ScrollView className="flex-1 bg-white p-3.5" contentContainerStyle={{ paddingBottom: 20 }}>
       <TouchableOpacity onPress={onClose} testID="booking-detail-back">
-        <Text style={s.link}>← All bookings</Text>
+        <Text className="text-primary text-[13px] mt-2">← All bookings</Text>
       </TouchableOpacity>
-      <Text style={s.title}>{b.service.name}</Text>
-      <Text style={[s.badge, { color: badge(b.status) }]}>{b.status}</Text>
-      <View style={s.kv}>
-        <Text style={s.k}>Date</Text>
-        <Text style={s.v}>{b.date}</Text>
+      <Text className="font-extrabold text-lg mt-2 mb-3">{b.service.name}</Text>
+      <Text className="text-[11px] font-extrabold" style={{ color: badge(b.status) }}>
+        {b.status}
+      </Text>
+      <View className="flex-row justify-between py-2.5 border-b border-[#F0F0F0]">
+        <Text className="text-[#666] text-[13px]">Date</Text>
+        <Text className="font-semibold text-[13px]">{b.date}</Text>
       </View>
-      <View style={s.kv}>
-        <Text style={s.k}>Time</Text>
-        <Text style={s.v}>
+      <View className="flex-row justify-between py-2.5 border-b border-[#F0F0F0]">
+        <Text className="text-[#666] text-[13px]">Time</Text>
+        <Text className="font-semibold text-[13px]">
           {b.startTime} · {b.duration}h
         </Text>
       </View>
-      <View style={s.kv}>
-        <Text style={s.k}>Location</Text>
-        <Text style={s.v}>{b.location}</Text>
+      <View className="flex-row justify-between py-2.5 border-b border-[#F0F0F0]">
+        <Text className="text-[#666] text-[13px]">Location</Text>
+        <Text className="font-semibold text-[13px]">{b.location}</Text>
       </View>
       {b.eventType && (
-        <View style={s.kv}>
-          <Text style={s.k}>Event</Text>
-          <Text style={s.v}>{b.eventType}</Text>
+        <View className="flex-row justify-between py-2.5 border-b border-[#F0F0F0]">
+          <Text className="text-[#666] text-[13px]">Event</Text>
+          <Text className="font-semibold text-[13px]">{b.eventType}</Text>
         </View>
       )}
       {b.notes && (
-        <View style={s.kv}>
-          <Text style={s.k}>Notes</Text>
-          <Text style={s.v}>{b.notes}</Text>
+        <View className="flex-row justify-between py-2.5 border-b border-[#F0F0F0]">
+          <Text className="text-[#666] text-[13px]">Notes</Text>
+          <Text className="font-semibold text-[13px]">{b.notes}</Text>
         </View>
       )}
-      <View style={s.kv}>
-        <Text style={s.k}>Total</Text>
-        <Text style={s.total}>{fmt(b.total)}</Text>
+      <View className="flex-row justify-between py-2.5 border-b border-[#F0F0F0]">
+        <Text className="text-[#666] text-[13px]">Total</Text>
+        <Text className="text-leaf font-extrabold text-[15px]">{fmt(b.total)}</Text>
       </View>
       {cancel.isError && (
-        <Text style={s.err} testID="booking-cancel-error">
+        <Text className="text-danger mt-3 font-semibold" testID="booking-cancel-error">
           {cancel.error?.message}
         </Text>
       )}
       {b.status === 'PENDING' && (
         <TouchableOpacity
-          style={s.cancelBtn}
+          className="border border-danger rounded-xl p-3.5 items-center mt-4"
           onPress={doCancel}
           disabled={cancel.isPending}
           testID="booking-cancel-btn"
         >
-          <Text style={s.cancelT}>
+          <Text className="text-danger font-bold">
             {cancel.isPending ? 'Cancelling…' : 'Cancel Booking'}
           </Text>
         </TouchableOpacity>
@@ -129,14 +130,14 @@ export default function BookingsScreen() {
 
   if (!me) {
     return (
-      <View style={s.auth}>
-        <Text style={s.authT}>Log in to see your bookings.</Text>
+      <View className="flex-1 items-center justify-center p-6">
+        <Text className="text-sm text-[#555] mb-3">Log in to see your bookings.</Text>
         <TouchableOpacity
-          style={s.loginBtn}
+          className="bg-primary rounded-[10px] px-7 py-3"
           onPress={() => router.push('/login')}
           testID="bookings-login-btn"
         >
-          <Text style={s.loginT}>Log In</Text>
+          <Text className="text-white font-bold">Log In</Text>
         </TouchableOpacity>
       </View>
     );
@@ -165,57 +166,11 @@ export default function BookingsScreen() {
   }
 
   return (
-    <ScrollView style={s.wrap} contentContainerStyle={{ paddingBottom: 20 }}>
-      <Text style={s.title}>My Bookings</Text>
+    <ScrollView className="flex-1 bg-white p-3.5" contentContainerStyle={{ paddingBottom: 20 }}>
+      <Text className="font-extrabold text-lg mt-2 mb-3">My Bookings</Text>
       {list.map((b) => (
         <BookingRow key={b.id} b={b} onOpen={setSelectedId} />
       ))}
     </ScrollView>
   );
 }
-
-const s = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: '#fff', padding: 14 },
-  title: { fontWeight: '800', fontSize: 18, marginTop: 8, marginBottom: 12 },
-  link: { color: COLORS.primary, fontSize: 13, marginTop: 8 },
-  card: {
-    flexDirection: 'row',
-    backgroundColor: '#F8F7FF',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
-    alignItems: 'center',
-  },
-  bN: { fontWeight: '700', fontSize: 14 },
-  bD: { fontSize: 12, color: '#666', marginTop: 2 },
-  badge: { fontSize: 11, fontWeight: '800' },
-  kv: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderColor: '#F0F0F0',
-  },
-  k: { color: '#666', fontSize: 13 },
-  v: { fontWeight: '600', fontSize: 13 },
-  total: { color: COLORS.green, fontWeight: '800', fontSize: 15 },
-  cancelBtn: {
-    borderWidth: 1,
-    borderColor: COLORS.red,
-    borderRadius: 12,
-    padding: 14,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  cancelT: { color: COLORS.red, fontWeight: '700' },
-  err: { color: COLORS.red, marginTop: 12, fontWeight: '600' },
-  auth: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  authT: { fontSize: 14, color: '#555', marginBottom: 12 },
-  loginBtn: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 28,
-  },
-  loginT: { color: '#fff', fontWeight: '700' },
-});

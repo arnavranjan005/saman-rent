@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import '../global.css';
 import { fetchMe } from '../api/auth';
 import { authKeys } from '../hooks/useAuth';
 import { clearToken, getToken } from '../lib/tokenStore';
@@ -37,7 +38,7 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <AuthBootstrap>
         <SafeAreaProvider>
-          <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: '#fff' }}>
+          <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-white">
             <StatusBar style="auto" />
             <Stack screenOptions={{ headerShown: false }} />
           </SafeAreaView>

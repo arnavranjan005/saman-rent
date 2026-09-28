@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { COLORS } from '../data/mock';
 import VendorCard from '../components/VendorCard';
 import EmptyState from '../components/EmptyState';
 import ErrorState from '../components/ErrorState';
@@ -30,19 +29,29 @@ export default function CategoryScreen({ showBack = true }) {
   const { data, isPending, isError, error, refetch } = useServices(params);
   const list = data?.items ?? [];
   return (
-    <View style={s.wrap}>
-      <View style={s.header}>
+    <View className="flex-1 bg-white p-3.5">
+      <View className="flex-row justify-between items-center mt-2 mb-2.5">
         {showBack ? (
-          <TouchableOpacity onPress={goBack} testID="cat-back"><Ionicons name="arrow-back" size={22} color="#000" /></TouchableOpacity>
+          <TouchableOpacity onPress={goBack} testID="cat-back">
+            <Ionicons name="arrow-back" size={22} color="#000" />
+          </TouchableOpacity>
         ) : (
-          <View style={{ width: 22 }} />
+          <View className="w-[22px]" />
         )}
-        <Text style={s.title}>{catName}</Text><Ionicons name="search" size={22} color="#000" />
+        <Text className="font-bold text-base">{catName}</Text>
+        <Ionicons name="search" size={22} color="#000" />
       </View>
-      <View style={s.chips}>
+      <View className="flex-row mb-3">
         {FILTERS.map((c) => (
-          <TouchableOpacity key={c} style={[s.chip, f === c && s.chipOn]} onPress={() => setF(c)} testID={`filter-${c}`}>
-            <Text style={[s.chipT, f === c && s.chipTOn]}>{c}</Text>
+          <TouchableOpacity
+            key={c}
+            className={`border rounded-full px-3 py-1.5 mr-2 ${f === c ? 'bg-primary border-primary' : 'border-[#DDD]'}`}
+            onPress={() => setF(c)}
+            testID={`filter-${c}`}
+          >
+            <Text className={`text-xs ${f === c ? 'text-white font-bold' : 'text-[#333]'}`}>
+              {c}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -64,14 +73,3 @@ export default function CategoryScreen({ showBack = true }) {
     </View>
   );
 }
-const s = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: '#fff', padding: 14 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, marginBottom: 10 },
-  back: { fontSize: 22 },
-  title: { fontWeight: '700', fontSize: 16 },
-  chips: { flexDirection: 'row', marginBottom: 12 },
-  chip: { borderWidth: 1, borderColor: '#DDD', borderRadius: 20, paddingVertical: 6, paddingHorizontal: 12, marginRight: 8 },
-  chipOn: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  chipT: { fontSize: 12, color: '#333' },
-  chipTOn: { color: '#fff', fontWeight: '700' },
-});

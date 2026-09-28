@@ -1,7 +1,6 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { COLORS } from '../data/mock';
 import VendorCard from '../components/VendorCard';
 import EmptyState from '../components/EmptyState';
 import ErrorState from '../components/ErrorState';
@@ -17,14 +16,14 @@ export default function WishlistScreen() {
 
   if (!me) {
     return (
-      <View style={s.auth}>
-        <Text style={s.authT}>Log in to see your wishlist.</Text>
+      <View className="flex-1 items-center justify-center p-6">
+        <Text className="text-sm text-[#555] mb-3">Log in to see your wishlist.</Text>
         <TouchableOpacity
-          style={s.authBtn}
+          className="bg-primary rounded-[10px] px-7 py-3"
           onPress={() => router.push('/login')}
           testID="wishlist-login-btn"
         >
-          <Text style={s.authBtnT}>Log In</Text>
+          <Text className="text-white font-bold">Log In</Text>
         </TouchableOpacity>
       </View>
     );
@@ -52,25 +51,11 @@ export default function WishlistScreen() {
   }
 
   return (
-    <ScrollView style={s.wrap} contentContainerStyle={{ paddingBottom: 20 }}>
-      <Text style={s.title}>My Wishlist</Text>
+    <ScrollView className="flex-1 bg-white p-3.5" contentContainerStyle={{ paddingBottom: 20 }}>
+      <Text className="font-extrabold text-lg mt-2 mb-3">My Wishlist</Text>
       {list.map((v) => (
         <VendorCard key={v.id} v={v} onPress={() => openDetails(v)} />
       ))}
     </ScrollView>
   );
 }
-
-const s = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: '#fff', padding: 14 },
-  title: { fontWeight: '800', fontSize: 18, marginTop: 8, marginBottom: 12 },
-  auth: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  authT: { fontSize: 14, color: '#555', marginBottom: 12 },
-  authBtn: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 28,
-  },
-  authBtnT: { color: '#fff', fontWeight: '700' },
-});

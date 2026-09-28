@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { COLORS } from '../data/mock';
@@ -8,25 +8,22 @@ export default function ComingSoonScreen({ title, message, icon, onHome }) {
   const router = useRouter();
   const goHome = onHome || (() => router.replace('/'));
   return (
-    <View style={s.wrap}>
-      <View style={s.circle}>
+    <View className="flex-1 bg-white items-center px-8 pt-[130px]">
+      <View className="w-[110px] h-[110px] rounded-full bg-[#EFEAFF] items-center justify-center">
         <Ionicons name={icon || 'hourglass-outline'} size={48} color={COLORS.primary} />
       </View>
-      <Text style={s.title}>{title}</Text>
-      <Text style={s.badge}>Coming Soon</Text>
-      <Text style={s.msg}>{message}</Text>
-      <TouchableOpacity style={s.btn} onPress={goHome} testID="coming-home-btn">
-        <Text style={s.btnT}>Explore Services</Text>
+      <Text className="font-extrabold text-[22px] mt-5">{title}</Text>
+      <Text className="text-primary font-bold text-[13px] mt-1.5 bg-[#EFEAFF] px-3.5 py-1 rounded-full overflow-hidden">
+        Coming Soon
+      </Text>
+      <Text className="text-center text-[#666] text-sm mt-3 leading-5">{message}</Text>
+      <TouchableOpacity
+        className="bg-primary rounded-xl px-8 py-3.5 mt-6"
+        onPress={goHome}
+        testID="coming-home-btn"
+      >
+        <Text className="text-white font-bold text-[15px]">Explore Services</Text>
       </TouchableOpacity>
     </View>
   );
 }
-const s = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: '#fff', alignItems: 'center', paddingHorizontal: 32, paddingTop: 130 },
-  circle: { width: 110, height: 110, borderRadius: 55, backgroundColor: '#EFEAFF', alignItems: 'center', justifyContent: 'center' },
-  title: { fontWeight: '800', fontSize: 22, marginTop: 20 },
-  badge: { color: COLORS.primary, fontWeight: '700', fontSize: 13, marginTop: 6, backgroundColor: '#EFEAFF', paddingVertical: 4, paddingHorizontal: 14, borderRadius: 20, overflow: 'hidden' },
-  msg: { textAlign: 'center', color: '#666', fontSize: 14, marginTop: 12, lineHeight: 20 },
-  btn: { backgroundColor: COLORS.primary, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 32, marginTop: 26 },
-  btnT: { color: '#fff', fontWeight: '700', fontSize: 15 },
-});
