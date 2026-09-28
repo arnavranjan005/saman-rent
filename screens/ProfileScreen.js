@@ -37,6 +37,8 @@ export default function ProfileScreen() {
     }
   };
 
+  const goTab = (tab) => router.push(`/(tabs)/${tab}`);
+
   return (
     <ScrollView className="flex-1 bg-white p-3.5" contentContainerStyle={{ paddingBottom: 20 }}>
       <View className="flex-row items-center mt-2">
@@ -62,7 +64,9 @@ export default function ProfileScreen() {
       </View>
       <View className="flex-row justify-between mt-[18px] mb-2.5">
         <Text className="font-bold">My Bookings</Text>
-        <Text className="text-primary text-xs">View All</Text>
+        <TouchableOpacity onPress={() => goTab('bookings')} testID="profile-view-all-bookings">
+          <Text className="text-primary text-xs">View All</Text>
+        </TouchableOpacity>
       </View>
       {!me ? (
         <Text className="text-xs text-muted mb-2.5">Log in to see your bookings here.</Text>
@@ -89,8 +93,20 @@ export default function ProfileScreen() {
         <TouchableOpacity
           key={m.label}
           className="flex-row justify-between items-center py-3 border-b border-[#F0F0F0]"
-          onPress={m.label === 'Log Out' ? handleAuthAction : undefined}
-          testID={m.label === 'Log Out' ? 'profile-menu-logout' : undefined}
+          onPress={
+            m.label === 'Log Out'
+              ? handleAuthAction
+              : m.label === 'My Wishlist'
+                ? () => goTab('wishlist')
+                : undefined
+          }
+          testID={
+            m.label === 'Log Out'
+              ? 'profile-menu-logout'
+              : m.label === 'My Wishlist'
+                ? 'profile-menu-wishlist'
+                : undefined
+          }
         >
           <View className="flex-row items-center">
             <Ionicons name={m.icon} size={18} color="#555" />

@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, fmt } from '../data/mock';
@@ -80,7 +89,11 @@ export default function BookingScreen() {
   const booking = create.data;
 
   return (
-    <View className="flex-1 bg-white p-3.5">
+    <KeyboardAvoidingView
+      className="flex-1 bg-white"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View className="flex-1 p-3.5">
       <View className="flex-row justify-between mt-2 mb-2.5">
         <TouchableOpacity onPress={goBack} testID="booking-back">
           <Ionicons name="arrow-back" size={22} color="#000" />
@@ -188,6 +201,7 @@ export default function BookingScreen() {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
