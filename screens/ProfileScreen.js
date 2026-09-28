@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { COLORS, BOOKINGS, IMG } from '../data/mock';
+import { useLogout, useMe } from '../hooks/useAuth';
 
 const MENU = [
   { label: 'My Wishlist', icon: 'heart-outline' },
@@ -14,17 +16,36 @@ const MENU = [
 const badge = (st) => st === 'Confirmed' ? COLORS.green : st === 'Pending' ? COLORS.orange : COLORS.red;
 
 export default function ProfileScreen() {
+  const router = useRouter();
+  // Cache-only read: AuthBootstrap fills this on startup when a token exists.
+  const { data: me } = useMe();
+  const logout = useLogout();
+
+  const handleAuthAction = () => {
+    if (me) {
+      logout.mutate();
+    } else {
+      router.push('/login');
+    }
+  };
+
   return (
     <ScrollView style={s.wrap} contentContainerStyle={{ paddingBottom: 20 }}>
       <View style={s.header}>
         <Image source={IMG.avatar} style={s.avatar} resizeMode="cover" />
         <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={s.name}>Md Rustam Khan</Text>
-          <Text style={s.ph}>+91 9123456789</Text>
+          <Text style={s.name}>{me?.name ?? (me ? 'SamanRent User' : 'Guest')}</Text>
+          <Text style={s.ph}>{me?.phone ?? 'Log in to book services'}</Text>
           <Text style={s.edit}>Edit Profile</Text>
         </View>
         <Text> </Text>
-        <Ionicons name="settings-outline" size={22} color="#333" />
+        <TouchableOpacity onPress={handleAuthAction} testID={me ? 'profile-logout-btn' : 'profile-login-btn'}>
+          <Ionicons
+            name={me ? 'log-out-outline' : 'log-in-outline'}
+            size={22}
+            color={COLORS.primary}
+          />
+        </TouchableOpacity>
       </View>
       <View style={s.row}><Text style={s.h}>My Bookings</Text><Text style={s.link}>View All</Text></View>
       {BOOKINGS.map((b) => (
@@ -38,7 +59,12 @@ export default function ProfileScreen() {
         </View>
       ))}
       {MENU.map((m) => (
-        <TouchableOpacity key={m.label} style={s.menu}>
+        <TouchableOpacity
+          key={m.label}
+          style={s.menu}
+          onPress={m.label === 'Log Out' ? handleAuthAction : undefined}
+          testID={m.label === 'Log Out' ? 'profile-menu-logout' : undefined}
+        >
           <View style={s.menuL}><Ionicons name={m.icon} size={18} color="#555" /><Text style={s.menuT}>{m.label}</Text></View>
           <Ionicons name="chevron-forward" size={18} color="#999" />
         </TouchableOpacity>
