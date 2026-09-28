@@ -2,8 +2,10 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { COLORS, BOOKINGS, IMG } from '../data/mock';
+import { COLORS, IMG } from '../data/mock';
 import { useLogout, useMe } from '../hooks/useAuth';
+import { useBookings } from '../hooks/useBookings';
+import { resolveImage } from '../lib/serviceImage';
 
 const MENU = [
   { label: 'My Wishlist', icon: 'heart-outline' },
@@ -13,13 +15,19 @@ const MENU = [
   { label: 'About Us', icon: 'information-circle-outline' },
   { label: 'Log Out', icon: 'log-out-outline' },
 ];
-const badge = (st) => st === 'Confirmed' ? COLORS.green : st === 'Pending' ? COLORS.orange : COLORS.red;
+const badge = (st) =>
+  st === 'CONFIRMED' || st === 'COMPLETED'
+    ? COLORS.green
+    : st === 'PENDING'
+      ? COLORS.orange
+      : COLORS.red;
 
 export default function ProfileScreen() {
   const router = useRouter();
   // Cache-only read: AuthBootstrap fills this on startup when a token exists.
   const { data: me } = useMe();
   const logout = useLogout();
+  const { data: bookings } = useBookings(Boolean(me));
 
   const handleAuthAction = () => {
     if (me) {
@@ -48,16 +56,25 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
       <View style={s.row}><Text style={s.h}>My Bookings</Text><Text style={s.link}>View All</Text></View>
-      {BOOKINGS.map((b) => (
-        <View key={b.id} style={s.bCard} testID={`booking-${b.id}`}>
-          <Image source={b.img} style={s.thumb} />
-          <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={s.bN}>{b.vendor}</Text>
-            <Text style={s.bD}>{b.date} {'\n'}{b.time}</Text>
+      {!me ? (
+        <Text style={s.hint}>Log in to see your bookings here.</Text>
+      ) : (bookings ?? []).length === 0 ? (
+        <Text style={s.hint}>No bookings yet.</Text>
+      ) : (
+        (bookings ?? []).slice(0, 3).map((b) => (
+          <View key={b.id} style={s.bCard} testID={`booking-${b.id}`}>
+            <Image source={resolveImage(b.service.img)} style={s.thumb} />
+            <View style={{ flex: 1, marginLeft: 10 }}>
+              <Text style={s.bN}>{b.service.name}</Text>
+              <Text style={s.bD}>
+                {b.date} {'\n'}
+                {b.startTime}
+              </Text>
+            </View>
+            <Text style={[s.badge, { color: badge(b.status) }]}>{b.status}</Text>
           </View>
-          <Text style={[s.badge, { color: badge(b.status) }]}>{b.status}</Text>
-        </View>
-      ))}
+        ))
+      )}
       {MENU.map((m) => (
         <TouchableOpacity
           key={m.label}
@@ -83,6 +100,7 @@ const s = StyleSheet.create({
   thumb: { width: 52, height: 52, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   bN: { fontWeight: '700', fontSize: 13 }, bD: { fontSize: 11, color: '#666' },
   badge: { fontSize: 11, fontWeight: '700' },
+  hint: { fontSize: 12, color: COLORS.grey, marginBottom: 10 },
   menu: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F0F0F0' },
   menuL: { flexDirection: 'row', alignItems: 'center' },
   menuT: { marginLeft: 10, fontSize: 14 },

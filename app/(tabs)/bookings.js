@@ -1,11 +1,5 @@
-import ComingSoonScreen from '../../screens/ComingSoonScreen';
+import BookingsScreen from '../../screens/BookingsScreen';
 
 export default function BookingsTab() {
-  return (
-    <ComingSoonScreen
-      title="My Bookings"
-      message="Your booking history will live here. Track upcoming events and past orders."
-      icon="calendar-outline"
-    />
-  );
+  return <BookingsScreen />;
 }
