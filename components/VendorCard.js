@@ -2,11 +2,12 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, fmt } from '../data/mock';
+import { resolveImage } from '../lib/serviceImage';
 
 export default function VendorCard({ v, onPress }) {
   return (
     <TouchableOpacity style={s.card} onPress={onPress} testID={`vendor-${v.id}`}>
-      <Image source={v.img} style={s.thumb} />
+      <Image source={resolveImage(v.img)} style={s.thumb} />
       <View style={s.info}>
         <Text style={s.name}>{v.name}</Text>
         <Text style={s.sub}><Ionicons name="star" size={12} color="#F59E0B" /> {v.rating} ({v.reviews})</Text>

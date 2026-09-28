@@ -2,21 +2,34 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { COLORS, VENDORS, fmt } from '../data/mock';
-
-const FALLBACK = { id: '1', name: 'Royal DJ Sound', rating: 4.8, reviews: 120, location: 'Koderma, Jharkhand', price: 15000, color: '#2D1B69', img: require('../assets/vendors/dj1.jpg'), hero: require('../assets/vendors/djhero.jpg') };
+import { COLORS, fmt } from '../data/mock';
+import ErrorState from '../components/ErrorState';
+import LoadingState from '../components/LoadingState';
+import { useService } from '../hooks/useServices';
+import { resolveImage } from '../lib/serviceImage';
 
 export default function DetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const vendor = VENDORS.find((x) => x.id === id) || FALLBACK;
-  const v = vendor;
+  const { data: v, isPending, isError, error, refetch } = useService(id);
   const goBack = () => router.back();
+
+  if (isPending) return <LoadingState testID="details-loading" />;
+  if (isError || !v) {
+    return (
+      <ErrorState
+        testID="details-error"
+        message={error?.message ?? 'Service not found.'}
+        onRetry={() => refetch()}
+      />
+    );
+  }
+
   const openBooking = () => router.push({ pathname: '/booking', params: { id: v.id } });
   return (
     <View style={s.wrap}>
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        <ImageBackground source={v.hero || v.img} style={s.hero} resizeMode="cover">
+        <ImageBackground source={resolveImage(v.hero || v.img)} style={s.hero} resizeMode="cover">
           <View style={s.heroTop}>
             <TouchableOpacity onPress={goBack} testID="details-back"><Ionicons name="arrow-back" size={22} color="#fff" /></TouchableOpacity>
             <View style={{ flexDirection: 'row' }}><Ionicons name="heart-outline" size={22} color="#fff" /><View style={{ width: 12 }} /><Ionicons name="share-outline" size={22} color="#fff" /></View>
@@ -27,7 +40,7 @@ export default function DetailsScreen() {
           <Text style={s.rate}><Ionicons name="star" size={12} color="#F59E0B" /> {v.rating} ({v.reviews} Reviews)   <Ionicons name="checkmark-circle" size={12} color="#16A34A" /> Verified</Text>
           <Text style={s.loc}><Ionicons name="location-outline" size={12} color="#666" /> {v.location}</Text>
           <Text style={s.h}>About</Text>
-          <Text style={s.p}>We provide best DJ services for weddings, parties, birthdays & all types of events.</Text>
+          <Text style={s.p}>{v.description ?? 'We provide best services for weddings, parties, birthdays & all types of events.'}</Text>
           <View style={s.stats}>
             {[['10+ Years', 'Experience'], ['50+ Events', 'Completed'], ['2', 'Team Size'], ['All India', 'Available']].map(([a, b]) => (
               <View key={b} style={s.stat}><Text style={s.statA}>{a}</Text><Text style={s.statB}>{b}</Text></View>

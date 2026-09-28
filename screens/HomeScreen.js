@@ -2,13 +2,35 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { COLORS, CATEGORIES, VENDORS, fmt, IMG } from '../data/mock';
+import { COLORS, fmt, IMG } from '../data/mock';
 import VendorCard from '../components/VendorCard';
+import ErrorState from '../components/ErrorState';
+import LoadingState from '../components/LoadingState';
+import { useCategories, useHome } from '../hooks/useServices';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const home = useHome();
+  const categories = useCategories();
   const openCategory = (id) => router.push({ pathname: '/category', params: { id } });
   const openDetails = (v) => router.push({ pathname: '/details', params: { id: v.id } });
+
+  if (home.isPending || categories.isPending) return <LoadingState testID="home-loading" />;
+  if (home.isError || categories.isError) {
+    return (
+      <ErrorState
+        testID="home-error"
+        message={(home.error ?? categories.error)?.message}
+        onRetry={() => {
+          home.refetch();
+          categories.refetch();
+        }}
+      />
+    );
+  }
+
+  const cats = categories.data ?? [];
+  const popular = home.data?.popular ?? [];
   return (
     <ScrollView style={s.wrap} contentContainerStyle={{ paddingBottom: 20 }}>
       <View style={s.header}>
@@ -27,14 +49,14 @@ export default function HomeScreen() {
       </View>
       <View style={s.row}><Text style={s.h}>Top Categories</Text><Text style={s.link}>View All</Text></View>
       <View style={s.cats}>
-        {CATEGORIES.map((c) => (
+        {cats.map((c) => (
           <TouchableOpacity key={c.id} style={[s.cat, { backgroundColor: c.color }]} onPress={() => openCategory(c.id)} testID={`cat-${c.id}`}>
             {c.lib === 'mci' ? <MaterialCommunityIcons name={c.icon} size={30} color="#B45309" /> : <Ionicons name={c.icon} size={30} color={COLORS.primary} />}<Text style={s.catT}>{c.name}</Text>
           </TouchableOpacity>
         ))}
       </View>
       <View style={s.row}><Text style={s.h}>Popular Near You</Text><Text style={s.link}>View All</Text></View>
-      {[VENDORS[0], VENDORS[4], VENDORS[1], VENDORS[5]].map((v) => (
+      {popular.map((v) => (
         <VendorCard key={v.id} v={v} onPress={() => openDetails(v)} />
       ))}
     </ScrollView>
