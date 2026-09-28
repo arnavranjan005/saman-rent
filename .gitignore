@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Expo / React Native generated
+.expo/
+dist/
+server/dist/
+web-build/
+expo-qr.png
+
+# Logs
+*.log
+*.err
+npm-debug.log*
+
+# Env / secrets (never commit real values)
+.env
+.env*.local
+server/.env
+server/.env*.local
+!.env.example
+server/.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/

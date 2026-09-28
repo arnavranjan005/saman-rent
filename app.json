@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "SamanRent",
+    "slug": "samanrent",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "samanrent",
+    "primaryColor": "#5B2DF0",
+    "android": {
+      "package": "com.samanrent.app"
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-status-bar",
+      "expo-router"
+    ]
+  }
+}
