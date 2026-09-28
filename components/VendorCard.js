@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, fmt } from '../data/mock';
 import { resolveImage } from '../lib/serviceImage';
+import SaveHeart from './SaveHeart';
 
 export default function VendorCard({ v, onPress }) {
   return (
@@ -14,7 +15,7 @@ export default function VendorCard({ v, onPress }) {
         <Text style={s.loc}>{v.location}</Text>
       </View>
       <View style={s.right}>
-        <Ionicons name="heart-outline" size={18} color="#999" />
+        <SaveHeart serviceId={v.id} />
         <Text style={s.price}>{fmt(v.price)}</Text>
         <Text style={s.onwards}>Onwards</Text>
       </View>

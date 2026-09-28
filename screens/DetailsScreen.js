@@ -6,6 +6,7 @@ import { COLORS, fmt } from '../data/mock';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
 import { useService } from '../hooks/useServices';
+import SaveHeart from '../components/SaveHeart';
 import { resolveImage } from '../lib/serviceImage';
 
 export default function DetailsScreen() {
@@ -32,7 +33,7 @@ export default function DetailsScreen() {
         <ImageBackground source={resolveImage(v.hero || v.img)} style={s.hero} resizeMode="cover">
           <View style={s.heroTop}>
             <TouchableOpacity onPress={goBack} testID="details-back"><Ionicons name="arrow-back" size={22} color="#fff" /></TouchableOpacity>
-            <View style={{ flexDirection: 'row' }}><Ionicons name="heart-outline" size={22} color="#fff" /><View style={{ width: 12 }} /><Ionicons name="share-outline" size={22} color="#fff" /></View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}><SaveHeart serviceId={v.id} size={22} dark /><View style={{ width: 12 }} /><Ionicons name="share-outline" size={22} color="#fff" /></View>
           </View>
         </ImageBackground>
         <View style={s.body}>

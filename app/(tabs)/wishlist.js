@@ -1,11 +1,5 @@
-import ComingSoonScreen from '../../screens/ComingSoonScreen';
+import WishlistScreen from '../../screens/WishlistScreen';
 
 export default function WishlistTab() {
-  return (
-    <ComingSoonScreen
-      title="My Wishlist"
-      message="Save your favourite vendors here and find them quickly later."
-      icon="heart-outline"
-    />
-  );
+  return <WishlistScreen />;
 }

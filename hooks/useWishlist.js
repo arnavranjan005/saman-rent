@@ -13,8 +13,8 @@ export const wishlistKeys = {
   list: ['wishlist'],
 };
 
-export function useWishlist() {
-  return useQuery({ queryKey: wishlistKeys.list, queryFn: fetchWishlist });
+export function useWishlist(enabled = true) {
+  return useQuery({ queryKey: wishlistKeys.list, queryFn: fetchWishlist, enabled });
 }
 
 export function useToggleWishlist() {
