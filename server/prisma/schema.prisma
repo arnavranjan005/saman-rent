@@ -1,5 +1,5 @@
-// Phase 1: foundation only — datasource + generator.
-// Domain models (User, Vendor, Category, Service, ...) land in Phase 2.
+// SamanRent V1 domain model (Phase 2).
+// Mirrors `data/mock.js` so the backend can return the same shape.
 
 generator client {
   provider = "prisma-client-js"
@@ -9,4 +9,154 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  CUSTOMER
+  VENDOR
+  ADMIN
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  DISABLED
+}
+
+enum ServiceStatus {
+  DRAFT
+  PENDING_APPROVAL
+  ACTIVE
+  DISABLED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  name      String?
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+  wishlist Wishlist[]
+  otpCodes OtpCode[]
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  phone     String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  consumed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+
+  @@index([phone])
+  @@index([expiresAt])
+}
+
+model Vendor {
+  id           String       @id @default(cuid())
+  name         String
+  phone        String?      @unique
+  email        String?      @unique
+  passwordHash String?
+  status       VendorStatus @default(PENDING)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  services Service[]
+}
+
+model Category {
+  id        String @id // 'dj' | 'tent' | 'cars' — matches mock ids
+  name      String
+  icon      String?
+  lib       String?
+  color     String?
+  sortOrder Int    @default(0)
+
+  services Service[]
+}
+
+model Service {
+  id           String        @id @default(cuid())
+  vendor       Vendor        @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  vendorId     String
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  categoryId   String
+  name         String
+  description  String?
+  price        Int // rupees, matches mock.js
+  location     String?
+  color        String?
+  tag          String?
+  rating       Float         @default(0)
+  reviewsCount Int           @default(0)
+  status       ServiceStatus @default(ACTIVE)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  images    ServiceImage[]
+  bookings  Booking[]
+  wishlists Wishlist[]
+
+  @@index([categoryId])
+  @@index([vendorId])
+  @@index([status])
+}
+
+model ServiceImage {
+  id        String  @id @default(cuid())
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId String
+  url       String
+  publicId  String?
+  sortOrder Int     @default(0)
+
+  @@index([serviceId])
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  service     Service       @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  serviceId   String
+  date        String // YYYY-MM-DD
+  startTime   String // HH:MM (24h)
+  duration    Int // hours
+  location    String
+  eventType   String?
+  notes       String?
+  total       Int // rupees, always calculated server-side
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([serviceId])
+  @@index([status])
+}
+
+model Wishlist {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId String
+  createdAt DateTime @default(now())
+
+  @@id([userId, serviceId])
 }
