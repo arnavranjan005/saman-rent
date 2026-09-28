@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { COLORS, IMG } from '../data/mock';
+import { statusPillClass } from '../lib/bookingStatus';
 import { useLogout, useMe } from '../hooks/useAuth';
 import { useBookings } from '../hooks/useBookings';
 import { resolveImage } from '../lib/serviceImage';
@@ -81,9 +82,7 @@ export default function ProfileScreen() {
                 {b.startTime}
               </Text>
             </View>
-            <Text className="text-[11px] font-bold" style={{ color: badge(b.status) }}>
-              {b.status}
-            </Text>
+            <Text className={statusPillClass(b.status)}>{b.status}</Text>
           </View>
         ))
       )}

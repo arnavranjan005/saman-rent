@@ -112,21 +112,27 @@ export default function BookingScreen() {
             </Text>
           </View>
         </View>
-        <Text className="font-semibold text-[13px] mt-3 mb-1.5">Event Date (YYYY-MM-DD)</Text>
+        <Text className="font-semibold text-[13px] mt-3 mb-1.5">
+          <Ionicons name="calendar-outline" size={12} color="#666" /> Event Date (YYYY-MM-DD)
+        </Text>
         <TextInput
           className="border border-[#DDD] rounded-[10px] p-3 text-sm"
           value={date}
           onChangeText={setDate}
           testID="field-date"
         />
-        <Text className="font-semibold text-[13px] mt-3 mb-1.5">Event Time (HH:MM, 24h)</Text>
+        <Text className="font-semibold text-[13px] mt-3 mb-1.5">
+          <Ionicons name="time-outline" size={12} color="#666" /> Event Time (HH:MM, 24h)
+        </Text>
         <TextInput
           className="border border-[#DDD] rounded-[10px] p-3 text-sm"
           value={startTime}
           onChangeText={setStartTime}
           testID="field-time"
         />
-        <Text className="font-semibold text-[13px] mt-3 mb-1.5">Duration (hours)</Text>
+        <Text className="font-semibold text-[13px] mt-3 mb-1.5">
+          <Ionicons name="hourglass-outline" size={12} color="#666" /> Duration (hours)
+        </Text>
         <View className="flex-row items-center">
           <TouchableOpacity
             className="border border-[#DDD] rounded-[10px] w-[46px] h-[46px] items-center justify-center"
@@ -150,7 +156,9 @@ export default function BookingScreen() {
             <Text className="text-xl font-bold text-primary">+</Text>
           </TouchableOpacity>
         </View>
-        <Text className="font-semibold text-[13px] mt-3 mb-1.5">Location</Text>
+        <Text className="font-semibold text-[13px] mt-3 mb-1.5">
+          <Ionicons name="location-outline" size={12} color="#666" /> Location
+        </Text>
         <TextInput
           className="border border-[#DDD] rounded-[10px] p-3 text-sm"
           value={loc}
@@ -158,7 +166,9 @@ export default function BookingScreen() {
           placeholder={v.location}
           testID="field-loc"
         />
-        <Text className="font-semibold text-[13px] mt-3 mb-1.5">Event Type</Text>
+        <Text className="font-semibold text-[13px] mt-3 mb-1.5">
+          <Ionicons name="pricetag-outline" size={12} color="#666" /> Event Type
+        </Text>
         <TextInput
           className="border border-[#DDD] rounded-[10px] p-3 text-sm"
           value={eventType}

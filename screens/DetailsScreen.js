@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ImageBackground, Share } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, ImageBackground, Share } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, fmt } from '../data/mock';

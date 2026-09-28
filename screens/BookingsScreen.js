@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, fmt } from '../data/mock';
+import { statusPillClass } from '../lib/bookingStatus';
 import ErrorState from '../components/ErrorState';
 import EmptyState from '../components/EmptyState';
 import LoadingState from '../components/LoadingState';
@@ -29,9 +30,7 @@ function BookingRow({ b, onOpen }) {
         </Text>
         <Text className="text-xs text-[#666] mt-0.5">{fmt(b.total)}</Text>
       </View>
-      <Text className="text-[11px] font-extrabold" style={{ color: badge(b.status) }}>
-        {b.status}
-      </Text>
+      <Text className={statusPillClass(b.status)}>{b.status}</Text>
     </TouchableOpacity>
   );
 }
@@ -68,9 +67,7 @@ function BookingDetail({ id, onClose }) {
         <Text className="text-primary text-[13px] mt-2">← All bookings</Text>
       </TouchableOpacity>
       <Text className="font-extrabold text-lg mt-2 mb-3">{b.service.name}</Text>
-      <Text className="text-[11px] font-extrabold" style={{ color: badge(b.status) }}>
-        {b.status}
-      </Text>
+      <Text className={statusPillClass(b.status)}>{b.status}</Text>
       <View className="flex-row justify-between py-2.5 border-b border-[#F0F0F0]">
         <Text className="text-[#666] text-[13px]">Date</Text>
         <Text className="font-semibold text-[13px]">{b.date}</Text>
