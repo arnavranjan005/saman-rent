@@ -6,7 +6,9 @@ import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/reac
 import '../global.css';
 import { fetchMe } from '../api/auth';
 import { authKeys } from '../hooks/useAuth';
+import { addSessionExpiredHandler } from '../lib/session';
 import { clearToken, getToken } from '../lib/tokenStore';
+import { clearVendorToken } from '../lib/vendorTokenStore';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,9 +35,29 @@ function AuthBootstrap({ children }) {
   return children;
 }
 
+// Phase 11c: any dead-token response anywhere wipes stored sessions,
+// dropping the app back to logged-out state without per-screen handling.
+function SessionExpiryWatcher() {
+  const client = useQueryClient();
+  useEffect(
+    () =>
+      addSessionExpiredHandler(() => {
+        (async () => {
+          await clearToken();
+          await clearVendorToken();
+          client.removeQueries({ queryKey: ['auth'] });
+          client.removeQueries({ queryKey: ['vendor'] });
+        })();
+      }),
+    [client],
+  );
+  return null;
+}
+
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
+      <SessionExpiryWatcher />
       <AuthBootstrap>
         <SafeAreaProvider>
           <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-white">

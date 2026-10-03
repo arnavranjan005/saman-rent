@@ -1,4 +1,5 @@
 import { API_BASE_URL, API_TIMEOUT_MS } from '../lib/env';
+import { isSessionDead, notifySessionExpired } from '../lib/session';
 import { getToken } from '../lib/tokenStore';
 
 export class ApiError extends Error {
@@ -30,9 +31,11 @@ async function request(
     });
     const payload = await res.json().catch(() => null);
     if (!res.ok) {
+      const code = payload?.error?.code ?? 'REQUEST_FAILED';
+      if (isSessionDead(code)) notifySessionExpired();
       throw new ApiError(
         res.status,
-        payload?.error?.code ?? 'REQUEST_FAILED',
+        code,
         payload?.error?.message ?? `Request failed (${res.status})`,
       );
     }
