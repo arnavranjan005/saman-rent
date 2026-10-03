@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../data/mock';
+import { COLORS } from '../../lib/theme';
 
 const TABS = [
   { name: 'index', title: 'Home', icon: 'home' },

@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, fmt } from '../data/mock';
+import { COLORS } from '../lib/theme';
+import { fmt } from '../lib/format';
 import { resolveImage } from '../lib/serviceImage';
 import SaveHeart from './SaveHeart';
 

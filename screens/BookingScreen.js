@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { COLORS, fmt } from '../data/mock';
+import { COLORS } from '../lib/theme';
+import { fmt } from '../lib/format';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
 import { useMe } from '../hooks/useAuth';

@@ -2,7 +2,7 @@ import { Tabs, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { COLORS } from '../../data/mock';
+import { COLORS } from '../../lib/theme';
 import { fetchVendorMe } from '../../api/vendor';
 import { vendorKeys } from '../../hooks/useVendor';
 import { clearVendorToken, getVendorToken } from '../../lib/vendorTokenStore';

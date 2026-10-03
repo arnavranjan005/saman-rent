@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { COLORS } from '../data/mock';
+import { COLORS } from '../lib/theme';
 
 export default function LoadingState({ testID = 'loading-state' }) {
   return (

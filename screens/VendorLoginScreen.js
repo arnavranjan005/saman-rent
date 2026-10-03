@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { COLORS } from '../data/mock';
+import { COLORS } from '../lib/theme';
 import { useVendorLogin } from '../hooks/useVendor';
 
 export default function VendorLoginScreen() {

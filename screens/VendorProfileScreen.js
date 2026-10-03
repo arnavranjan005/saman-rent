@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { COLORS } from '../data/mock';
+import { COLORS } from '../lib/theme';
 import LoadingState from '../components/LoadingState';
 import { useVendorLogout, useVendorMe } from '../hooks/useVendor';
 

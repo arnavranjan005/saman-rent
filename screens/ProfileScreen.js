@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { COLORS, IMG } from '../data/mock';
+import { COLORS, IMG } from '../lib/theme';
 import { statusPillClass } from '../lib/bookingStatus';
 import { useLogout, useMe } from '../hooks/useAuth';
 import { useBookings } from '../hooks/useBookings';

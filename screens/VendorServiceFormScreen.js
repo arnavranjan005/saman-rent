@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { COLORS } from '../data/mock';
+import { COLORS } from '../lib/theme';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
 import { uploadServiceImage } from '../lib/cloudinary';

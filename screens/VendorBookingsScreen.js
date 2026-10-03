@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, fmt } from '../data/mock';
+import { COLORS } from '../lib/theme';
+import { fmt } from '../lib/format';
 import EmptyState from '../components/EmptyState';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';

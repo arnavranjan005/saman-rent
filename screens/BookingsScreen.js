@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { COLORS, fmt } from '../data/mock';
+import { COLORS } from '../lib/theme';
+import { fmt } from '../lib/format';
 import { statusPillClass } from '../lib/bookingStatus';
 import ErrorState from '../components/ErrorState';
 import EmptyState from '../components/EmptyState';

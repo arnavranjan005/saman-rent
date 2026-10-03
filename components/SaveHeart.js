@@ -3,7 +3,7 @@ import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { COLORS } from '../data/mock';
+import { COLORS } from '../lib/theme';
 import { useMe } from '../hooks/useAuth';
 import { useToggleWishlist, wishlistKeys } from '../hooks/useWishlist';
 

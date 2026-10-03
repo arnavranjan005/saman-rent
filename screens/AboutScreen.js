@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { COLORS } from '../data/mock';
+import { COLORS } from '../lib/theme';
 
 export default function AboutScreen() {
   const router = useRouter();
