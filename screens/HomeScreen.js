@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Image, RefreshControl } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { COLORS, IMG } from '../lib/theme';
@@ -32,8 +32,28 @@ export default function HomeScreen() {
 
   const cats = categories.data ?? [];
   const popular = home.data?.popular ?? [];
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([home.refetch(), categories.refetch()]);
+    } finally {
+      setRefreshing(false);
+    }
+  };
   return (
-    <ScrollView className="flex-1 bg-white p-3.5" contentContainerStyle={{ paddingBottom: 20 }}>
+    <ScrollView
+      className="flex-1 bg-white p-3.5"
+      contentContainerStyle={{ paddingBottom: 20 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[COLORS.primary]}
+          testID="home-refresh"
+        />
+      }
+    >
       <View className="flex-row justify-between items-center mt-2">
         <View>
           <Text className="text-primary font-extrabold text-xl">SamanRent</Text>

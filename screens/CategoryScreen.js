@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import VendorCard from '../components/VendorCard';
@@ -32,6 +32,15 @@ export default function CategoryScreen({ showBack = true }) {
   const params = q ? { ...baseParams, q } : baseParams;
   const { data, isPending, isError, error, refetch } = useServices(params);
   const list = data?.items ?? [];
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  };
   return (
     <View className="flex-1 bg-white p-3.5">
       <View className="flex-row justify-between items-center mt-2 mb-2.5">
@@ -98,7 +107,17 @@ export default function CategoryScreen({ showBack = true }) {
           </TouchableOpacity>
         ))}
       </View>
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 20 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#5B2DF0']}
+            testID="category-refresh"
+          />
+        }
+      >
         {isPending ? (
           <LoadingState testID="category-loading" />
         ) : isError ? (

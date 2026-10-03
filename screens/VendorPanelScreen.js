@@ -1,5 +1,5 @@
-import React from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { COLORS } from '../lib/theme';
@@ -62,9 +62,29 @@ export default function VendorPanelScreen() {
 
   const s = stats.data;
   const initial = (me.name?.[0] ?? 'V').toUpperCase();
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await stats.refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   return (
-    <ScrollView className="flex-1 bg-white p-3.5" contentContainerStyle={{ paddingBottom: 20 }}>
+    <ScrollView
+      className="flex-1 bg-white p-3.5"
+      contentContainerStyle={{ paddingBottom: 20 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={['#5B2DF0']}
+          testID="vendor-panel-refresh"
+        />
+      }
+    >
       <View className="flex-row items-center mt-2">
         <View className="w-12 h-12 rounded-full bg-primary items-center justify-center">
           <Text className="text-white font-extrabold text-lg">{initial}</Text>

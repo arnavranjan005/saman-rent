@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Image, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { COLORS, IMG } from '../lib/theme';
@@ -27,7 +27,17 @@ export default function ProfileScreen() {
   // Cache-only read: AuthBootstrap fills this on startup when a token exists.
   const { data: me } = useMe();
   const logout = useLogout();
-  const { data: bookings } = useBookings(Boolean(me));
+  const { data: bookings, refetch: refetchBookings } = useBookings(Boolean(me));
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = async () => {
+    if (!me) return;
+    setRefreshing(true);
+    try {
+      await refetchBookings();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const handleAuthAction = () => {
     if (me) {
@@ -40,7 +50,18 @@ export default function ProfileScreen() {
   const goTab = (tab) => router.push(`/(tabs)/${tab}`);
 
   return (
-    <ScrollView className="flex-1 bg-white p-3.5" contentContainerStyle={{ paddingBottom: 20 }}>
+    <ScrollView
+      className="flex-1 bg-white p-3.5"
+      contentContainerStyle={{ paddingBottom: 20 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={['#5B2DF0']}
+          testID="profile-refresh"
+        />
+      }
+    >
       <View className="flex-row items-center mt-2">
         <Image source={IMG.avatar} className="w-14 h-14 rounded-full bg-[#EEE]" resizeMode="cover" />
         <View className="flex-1 ml-2.5">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../lib/theme';
 import { fmt } from '../lib/format';
 import EmptyState from '../components/EmptyState';
@@ -89,6 +89,15 @@ export default function VendorBookingsScreen() {
   const { data: me } = useVendorMe();
   const [filter, setFilter] = useState('ALL');
   const query = useVendorBookings(filter === 'ALL' ? undefined : filter, Boolean(me));
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await query.refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   if (!me) return <LoadingState testID="vendor-bookings-loading" />;
   if (query.isPending) return <LoadingState testID="vendor-bookings-list-loading" />;
@@ -104,7 +113,18 @@ export default function VendorBookingsScreen() {
 
   const list = query.data ?? [];
   return (
-    <ScrollView className="flex-1 bg-white p-3.5" contentContainerStyle={{ paddingBottom: 20 }}>
+    <ScrollView
+      className="flex-1 bg-white p-3.5"
+      contentContainerStyle={{ paddingBottom: 20 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={['#5B2DF0']}
+          testID="vendor-bookings-refresh"
+        />
+      }
+    >
       <Text className="font-extrabold text-lg mt-2 mb-3">Bookings</Text>
       <View className="flex-row flex-wrap mb-3">
         {FILTERS.map((f) => (
