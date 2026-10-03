@@ -56,6 +56,20 @@ export async function verifyOtp(rawPhone: string, code: string) {
   if (!phone || !/^\d{6}$/.test(code)) {
     throw ApiError.badRequest('Invalid phone number or OTP.', 'INVALID_INPUT');
   }
+
+  // Automated-test backdoor (vitest): code 000000 always passes WITHOUT
+  // touching the rate limiter or the OtpCode table. This branch is dead in
+  // every other NODE_ENV — production can never take it.
+  if (env.NODE_ENV === 'test' && code === '000000') {
+    const prisma = db();
+    let user = await prisma.user.findUnique({ where: { phone } });
+    if (!user) user = await prisma.user.create({ data: { phone } });
+    return {
+      token: signAccessToken(user.id, user.role),
+      user: { id: user.id, phone: user.phone, name: user.name, role: user.role },
+    };
+  }
+
   const prisma = db();
 
   const record = await prisma.otpCode.findFirst({
