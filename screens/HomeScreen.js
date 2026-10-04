@@ -6,6 +6,7 @@ import { COLORS, IMG } from '../lib/theme';
 import VendorCard from '../components/VendorCard';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
+import SectionHeader from '../components/SectionHeader';
 import { useCategories, useHome } from '../hooks/useServices';
 
 export default function HomeScreen() {
@@ -55,7 +56,7 @@ export default function HomeScreen() {
         />
       }
     >
-      <View className="flex-row justify-between items-center mt-2">
+      <View className="flex-row justify-between items-center mt-1">
         <View>
           <Text className="text-primary font-extrabold text-xl">SamanRent</Text>
           <Text className="text-xs text-[#333]">
@@ -64,7 +65,7 @@ export default function HomeScreen() {
         </View>
         <Ionicons name="notifications-outline" size={22} color="#333" />
       </View>
-      <View className="flex-row bg-primary rounded-2xl p-4 mt-3 items-center">
+      <View className="flex-row bg-primary rounded-2xl p-4 mt-4 items-center">
         <View className="flex-1">
           <Text className="text-white font-extrabold text-[17px]">
             Make Your Event{'\n'}Extra Special
@@ -82,12 +83,12 @@ export default function HomeScreen() {
         </View>
         <Image source={IMG.banner} className="w-[90px] h-[110px] rounded-xl" />
       </View>
-      <View className="flex-row justify-between mt-4 mb-2.5">
-        <Text className="font-bold text-[15px]">Top Categories</Text>
-        <TouchableOpacity onPress={openSearch} testID="home-viewall-cats">
-          <Text className="text-primary text-xs">View All</Text>
-        </TouchableOpacity>
-      </View>
+      <SectionHeader
+        title="Top Categories"
+        actionLabel="View All"
+        onAction={openSearch}
+        actionTestID="home-viewall-cats"
+      />
       <View className="flex-row justify-between">
         {cats.map((c) => (
           <TouchableOpacity
@@ -106,12 +107,12 @@ export default function HomeScreen() {
           </TouchableOpacity>
         ))}
       </View>
-      <View className="flex-row justify-between mt-4 mb-2.5">
-        <Text className="font-bold text-[15px]">Popular Near You</Text>
-        <TouchableOpacity onPress={openSearch} testID="home-viewall-popular">
-          <Text className="text-primary text-xs">View All</Text>
-        </TouchableOpacity>
-      </View>
+      <SectionHeader
+        title="Popular Near You"
+        actionLabel="View All"
+        onAction={openSearch}
+        actionTestID="home-viewall-popular"
+      />
       {popular.map((v) => (
         <VendorCard key={v.id} v={v} onPress={() => openDetails(v)} />
       ))}

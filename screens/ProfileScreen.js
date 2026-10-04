@@ -7,6 +7,7 @@ import { statusPillClass } from '../lib/bookingStatus';
 import { useLogout, useMe } from '../hooks/useAuth';
 import { useBookings } from '../hooks/useBookings';
 import { resolveImage } from '../lib/serviceImage';
+import SectionHeader from '../components/SectionHeader';
 
 const MENU = [
   { label: 'My Wishlist', icon: 'heart-outline', route: '/(tabs)/wishlist' },
@@ -82,12 +83,12 @@ export default function ProfileScreen() {
           />
         </TouchableOpacity>
       </View>
-      <View className="flex-row justify-between mt-[18px] mb-2.5">
-        <Text className="font-bold">My Bookings</Text>
-        <TouchableOpacity onPress={() => goTab('bookings')} testID="profile-view-all-bookings">
-          <Text className="text-primary text-xs">View All</Text>
-        </TouchableOpacity>
-      </View>
+      <SectionHeader
+        title="My Bookings"
+        actionLabel="View All"
+        onAction={() => goTab('bookings')}
+        actionTestID="profile-view-all-bookings"
+      />
       {!me ? (
         <Text className="text-xs text-muted mb-2.5">Log in to see your bookings here.</Text>
       ) : (bookings ?? []).length === 0 ? (
