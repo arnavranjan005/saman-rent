@@ -89,7 +89,17 @@ export function useCreateVendorService() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createVendorService,
-    onSuccess: () => invalidateVendor(queryClient),
+    onSuccess: (svc) => {
+      // Seed the new service into the list cache so the edit screen opened
+      // right after create finds it instantly (no "not found" flash).
+      if (svc?.id) {
+        queryClient.setQueryData(vendorKeys.services, (old) => {
+          const list = Array.isArray(old) ? old.filter((s) => s.id !== svc.id) : [];
+          return [...list, svc];
+        });
+      }
+      invalidateVendor(queryClient);
+    },
   });
 }
 

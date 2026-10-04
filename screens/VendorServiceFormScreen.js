@@ -61,6 +61,11 @@ export default function VendorServiceFormScreen() {
 
   if (!me) return <LoadingState testID="vendor-form-loading" />;
   if (isEdit && services.isPending) return <LoadingState testID="vendor-form-service-loading" />;
+  // While refetching (e.g. right after create), hold the loader instead of
+  // flashing "Service not found" when the cache hasn't caught up yet.
+  if (isEdit && !existing && services.isFetching) {
+    return <LoadingState testID="vendor-form-service-loading" />;
+  }
   if (isEdit && (services.isError || !existing)) {
     return (
       <ErrorState
