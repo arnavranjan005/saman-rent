@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS } from '../lib/theme';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
@@ -37,7 +37,9 @@ export default function VendorServiceFormScreen() {
   const addImage = useAddVendorServiceImage();
   const removeImage = useRemoveVendorServiceImage();
 
-  const existing = (services.data ?? []).find((s) => s.id === id);
+  const existing = isEdit
+    ? (services.data ?? []).find((s) => s.id === id)
+    : undefined;
 
   const [name, setName] = useState(existing?.name ?? '');
   const [categoryId, setCategoryId] = useState(existing?.categoryId ?? existing?.category?.id ?? 'dj');
@@ -47,9 +49,25 @@ export default function VendorServiceFormScreen() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
 
-  // Seed field state once the existing service loads.
+  // Create mode must always open blank: the navigator can hand us a reused
+  // fiber holding a previous visit's field state, so reset on every focus.
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!isEdit) {
+        setName('');
+        setCategoryId('dj');
+        setPrice('');
+        setLocation('');
+        setDescription('');
+        setUploadError(null);
+      }
+    }, [isEdit]),
+  );
+
+  // Seed field state once the existing service loads (edit mode only —
+  // create mode must always start empty, even if route params lag a render).
   React.useEffect(() => {
-    if (existing && !name) {
+    if (isEdit && existing && !name) {
       setName(existing.name ?? '');
       setCategoryId(existing.categoryId ?? existing.category?.id ?? 'dj');
       setPrice(String(existing.price ?? ''));
@@ -57,7 +75,7 @@ export default function VendorServiceFormScreen() {
       setDescription(existing.description ?? '');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [existing?.id]);
+  }, [isEdit, existing?.id]);
 
   if (!me) return <LoadingState testID="vendor-form-loading" />;
   if (isEdit && services.isPending) return <LoadingState testID="vendor-form-service-loading" />;
@@ -108,7 +126,7 @@ export default function VendorServiceFormScreen() {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       quality: 0.8,
     });
     if (result.canceled || !result.assets?.[0]) return;
