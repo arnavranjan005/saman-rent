@@ -21,6 +21,7 @@ export default function DetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { data: v, isPending, isError, error, refetch } = useService(id);
+  const [heroIdx, setHeroIdx] = React.useState(0);
   const goBack = () => router.back();
 
   if (isPending) return <LoadingState testID="details-loading" />;
@@ -36,7 +37,6 @@ export default function DetailsScreen() {
 
   const openBooking = () => router.push({ pathname: '/booking', params: { id: v.id } });
   const gallery = v.images?.length ? v.images : [{ url: v.hero || v.img }];
-  const [heroIdx, setHeroIdx] = React.useState(0);
   const hero = gallery[Math.min(heroIdx, gallery.length - 1)];
   const visibleThumbs = gallery.slice(0, 4);
   const extraCount = gallery.length - visibleThumbs.length;

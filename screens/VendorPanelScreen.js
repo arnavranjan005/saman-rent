@@ -35,6 +35,16 @@ export default function VendorPanelScreen() {
   const { data: me } = useVendorMe();
   const stats = useVendorStats(Boolean(me));
 
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await stats.refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   if (!me) return <LoadingState testID="vendor-panel-loading" />;
   if (me.status !== 'APPROVED') {
     return (
@@ -62,15 +72,6 @@ export default function VendorPanelScreen() {
 
   const s = stats.data;
   const initial = (me.name?.[0] ?? 'V').toUpperCase();
-  const [refreshing, setRefreshing] = useState(false);
-  const onRefresh = async () => {
-    setRefreshing(true);
-    try {
-      await stats.refetch();
-    } finally {
-      setRefreshing(false);
-    }
-  };
 
   return (
     <ScrollView

@@ -16,6 +16,16 @@ export default function HomeScreen() {
   const openDetails = (v) => router.push({ pathname: '/details', params: { id: v.id } });
   const openSearch = () => router.push('/(tabs)/search');
 
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([home.refetch(), categories.refetch()]);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   if (home.isPending || categories.isPending) return <LoadingState testID="home-loading" />;
   if (home.isError || categories.isError) {
     return (
@@ -32,15 +42,6 @@ export default function HomeScreen() {
 
   const cats = categories.data ?? [];
   const popular = home.data?.popular ?? [];
-  const [refreshing, setRefreshing] = useState(false);
-  const onRefresh = async () => {
-    setRefreshing(true);
-    try {
-      await Promise.all([home.refetch(), categories.refetch()]);
-    } finally {
-      setRefreshing(false);
-    }
-  };
   return (
     <ScrollView
       className="flex-1 bg-white p-3.5"
