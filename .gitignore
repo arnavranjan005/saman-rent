@@ -4,6 +4,8 @@ server/node_modules/
 
 # Expo / React Native generated
 .expo/
+android/
+ios/
 dist/
 server/dist/
 web-build/

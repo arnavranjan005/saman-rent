@@ -12,7 +12,15 @@
     "plugins": [
       "expo-asset",
       "expo-status-bar",
-      "expo-router"
+      "expo-router",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ]
   }
 }
