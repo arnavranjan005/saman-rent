@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   cancelBooking,
   createBooking,
+  createReview,
   getBookingById,
   listBookings,
 } from '../services/bookingService';
@@ -46,6 +47,27 @@ export async function listBookingsController(req: Request, res: Response): Promi
 export async function getBookingController(req: Request, res: Response): Promise<void> {
   if (!req.user) throw ApiError.unauthorized();
   res.json({ success: true, data: await getBookingById(req.user.id, req.params.id) });
+}
+
+const reviewSchema = z.object({
+  rating: z.coerce.number().int().min(1).max(5),
+  comment: z.string().trim().max(500).optional(),
+});
+
+/** POST /api/v1/bookings/:id/review */
+export async function createReviewController(req: Request, res: Response): Promise<void> {
+  if (!req.user) throw ApiError.unauthorized();
+  const parsed = reviewSchema.safeParse(req.body);
+  if (!parsed.success) {
+    throw ApiError.badRequest(
+      parsed.error.issues[0]?.message ?? 'Invalid review.',
+      'INVALID_REVIEW',
+    );
+  }
+  res.status(201).json({
+    success: true,
+    data: await createReview(req.user.id, req.params.id, parsed.data),
+  });
 }
 
 /** PATCH /api/v1/bookings/:id/cancel */

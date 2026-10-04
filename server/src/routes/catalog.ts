@@ -3,6 +3,7 @@ import {
   categoriesController,
   homeController,
   serviceDetailController,
+  serviceReviewsController,
   servicesController,
 } from '../controllers/catalogController';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -13,3 +14,4 @@ catalogRouter.get('/home', asyncHandler(homeController));
 catalogRouter.get('/categories', asyncHandler(categoriesController));
 catalogRouter.get('/services', asyncHandler(servicesController));
 catalogRouter.get('/services/:id', asyncHandler(serviceDetailController));
+catalogRouter.get('/services/:id/reviews', asyncHandler(serviceReviewsController));

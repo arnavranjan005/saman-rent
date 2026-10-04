@@ -3,6 +3,7 @@ import {
   fetchCategories,
   fetchHome,
   fetchServiceById,
+  fetchServiceReviews,
   fetchServices,
 } from '../api/services';
 
@@ -32,6 +33,14 @@ export function useService(id) {
   return useQuery({
     queryKey: serviceKeys.detail(id),
     queryFn: () => fetchServiceById(id),
+    enabled: Boolean(id),
+  });
+}
+
+export function useServiceReviews(id) {
+  return useQuery({
+    queryKey: [...serviceKeys.detail(id), 'reviews'],
+    queryFn: () => fetchServiceReviews(id),
     enabled: Boolean(id),
   });
 }

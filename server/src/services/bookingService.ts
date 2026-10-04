@@ -11,6 +11,7 @@ function db() {
 }
 
 const bookingInclude = {
+  review: { select: { id: true, rating: true } },
   service: {
     select: {
       id: true,
@@ -33,6 +34,7 @@ function toBooking(b: {
   total: number;
   status: 'PENDING' | 'CONFIRMED' | 'REJECTED' | 'CANCELLED' | 'COMPLETED';
   createdAt: Date;
+  review: { id: string; rating: number } | null;
   service: {
     id: string;
     name: string;
@@ -52,6 +54,7 @@ function toBooking(b: {
     total: b.total,
     status: b.status,
     createdAt: b.createdAt,
+    review: b.review ? { id: b.review.id, rating: b.review.rating } : null,
     service: {
       id: b.service.id,
       name: b.service.name,
@@ -137,4 +140,60 @@ export async function cancelBooking(userId: string, id: string) {
     include: bookingInclude,
   });
   return toBooking(updated);
+}
+
+export interface CreateReviewInput {
+  rating: number;
+  comment?: string;
+}
+
+/**
+ * Rate a COMPLETED booking (one review per booking, owner only).
+ * Recomputes the service's average rating + review count.
+ */
+export async function createReview(userId: string, bookingId: string, input: CreateReviewInput) {
+  const prisma = db();
+  const booking = await prisma.booking.findFirst({
+    where: { id: bookingId, userId },
+    include: { review: { select: { id: true } } },
+  });
+  if (!booking) throw ApiError.notFound('Booking not found.', 'BOOKING_NOT_FOUND');
+  if (booking.status !== 'COMPLETED') {
+    throw ApiError.badRequest(
+      `Only completed bookings can be reviewed (current: ${booking.status}).`,
+      'BOOKING_NOT_REVIEWABLE',
+    );
+  }
+  if (booking.review) {
+    throw ApiError.badRequest('This booking has already been reviewed.', 'REVIEW_EXISTS');
+  }
+  const created = await prisma.$transaction(async (tx) => {
+    const review = await tx.review.create({
+      data: {
+        bookingId: booking.id,
+        serviceId: booking.serviceId,
+        userId,
+        rating: input.rating,
+        comment: input.comment || null,
+      },
+    });
+    const agg = await tx.review.aggregate({
+      where: { serviceId: booking.serviceId },
+      _avg: { rating: true },
+      _count: { _all: true },
+    });
+    await tx.service.update({
+      where: { id: booking.serviceId },
+      data: { rating: agg._avg.rating ?? 0, reviewsCount: agg._count._all },
+    });
+    return review;
+  });
+  return {
+    id: created.id,
+    bookingId: created.bookingId,
+    serviceId: created.serviceId,
+    rating: created.rating,
+    comment: created.comment,
+    createdAt: created.createdAt,
+  };
 }

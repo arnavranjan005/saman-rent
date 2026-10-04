@@ -7,6 +7,7 @@ import { fmt } from '../lib/format';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
 import { useService } from '../hooks/useServices';
+import { useServiceReviews } from '../hooks/useServices';
 import SaveHeart from '../components/SaveHeart';
 import { resolveImage } from '../lib/serviceImage';
 
@@ -16,6 +17,45 @@ const STATS = [
   ['2', 'Team Size', 'people-outline'],
   ['All India', 'Available', 'location-outline'],
 ];
+
+function Stars({ value, size = 12 }) {
+  return (
+    <View className="flex-row items-center">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Ionicons
+          key={s}
+          name={s <= Math.round(value) ? 'star' : 'star-outline'}
+          size={size}
+          color="#F59E0B"
+        />
+      ))}
+    </View>
+  );
+}
+
+function ReviewsSection({ serviceId }) {
+  const reviews = useServiceReviews(serviceId);
+  if (reviews.isPending || reviews.isError || (reviews.data ?? []).length === 0) return null;
+  const list = reviews.data.slice(0, 3);
+  return (
+    <View testID="service-reviews">
+      <Text className="font-bold text-[15px] mt-3.5">Reviews ({reviews.data.length})</Text>
+      {list.map((r) => (
+        <View key={r.id} className="bg-[#F8F7FF] rounded-xl p-3 mt-2.5">
+          <View className="flex-row justify-between items-center">
+            <Stars value={r.rating} />
+            <Text className="text-[10px] text-[#888]">
+              {String(r.createdAt).slice(0, 10)} · {r.reviewer}
+            </Text>
+          </View>
+          {r.comment ? (
+            <Text className="text-[13px] text-[#333] mt-1.5">{r.comment}</Text>
+          ) : null}
+        </View>
+      ))}
+    </View>
+  );
+}
 
 export default function DetailsScreen() {
   const router = useRouter();
@@ -122,6 +162,7 @@ export default function DetailsScreen() {
           <Text className="text-primary font-extrabold text-base mt-1">
             {fmt(v.price)} Onwards
           </Text>
+          <ReviewsSection serviceId={v.id} />
         </View>
       </ScrollView>
       <View className="absolute bottom-0 left-0 right-0 p-3.5 bg-white">

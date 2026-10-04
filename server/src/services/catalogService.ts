@@ -140,3 +140,27 @@ export async function getServiceById(id: string) {
     images: service.images,
   };
 }
+
+/** Public reviews for a service, newest first. */
+export async function listReviews(serviceId: string, limit = 20) {
+  const prisma = db();
+  const rows = await prisma.review.findMany({
+    where: { serviceId },
+    include: { user: { select: { phone: true } } },
+    orderBy: { createdAt: 'desc' },
+    take: Math.min(50, Math.max(1, limit)),
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    comment: r.comment,
+    createdAt: r.createdAt,
+    reviewer: maskPhone(r.user.phone),
+  }));
+}
+
+function maskPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '').slice(-10);
+  if (digits.length < 4) return 'Verified customer';
+  return `+91 ${digits.slice(0, 2)}******${digits.slice(-2)}`;
+}

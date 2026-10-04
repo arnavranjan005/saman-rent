@@ -37,6 +37,7 @@ function BookingRow({ b, onOpen }) {
 }
 
 function BookingDetail({ id, onClose }) {
+  const router = useRouter();
   const { data: b, isPending, isError, error, refetch } = useBooking(id);
   const cancel = useCancelBooking();
 
@@ -115,6 +116,20 @@ function BookingDetail({ id, onClose }) {
             {cancel.isPending ? 'Cancelling…' : 'Cancel Booking'}
           </Text>
         </TouchableOpacity>
+      )}
+      {b.status === 'COMPLETED' && !b.review && (
+        <TouchableOpacity
+          className="bg-primary rounded-xl p-3.5 items-center mt-4"
+          onPress={() => router.push({ pathname: '/review', params: { id: b.id } })}
+          testID="booking-rate-btn"
+        >
+          <Text className="text-white font-bold">Rate Service</Text>
+        </TouchableOpacity>
+      )}
+      {b.status === 'COMPLETED' && b.review && (
+        <Text className="text-xs text-muted text-center mt-4" testID="booking-reviewed-label">
+          You rated this {b.review.rating} out of 5
+        </Text>
       )}
     </ScrollView>
   );

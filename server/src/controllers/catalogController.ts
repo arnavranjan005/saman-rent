@@ -5,6 +5,7 @@ import {
   getHome,
   getServiceById,
   getServices,
+  listReviews,
   type ServiceQuery,
 } from '../services/catalogService';
 import { ApiError } from '../utils/ApiError';
@@ -40,4 +41,10 @@ export async function servicesController(req: Request, res: Response): Promise<v
 /** GET /api/v1/services/:id */
 export async function serviceDetailController(req: Request, res: Response): Promise<void> {
   res.json({ success: true, data: await getServiceById(req.params.id) });
+}
+
+/** GET /api/v1/services/:id/reviews */
+export async function serviceReviewsController(req: Request, res: Response): Promise<void> {
+  const limit = Number(req.query.limit ?? 20);
+  res.json({ success: true, data: await listReviews(req.params.id, limit) });
 }

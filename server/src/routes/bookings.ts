@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   cancelBookingController,
   createBookingController,
+  createReviewController,
   getBookingController,
   listBookingsController,
 } from '../controllers/bookingController';
@@ -15,3 +16,4 @@ bookingsRouter.post('/', asyncHandler(createBookingController));
 bookingsRouter.get('/', asyncHandler(listBookingsController));
 bookingsRouter.get('/:id', asyncHandler(getBookingController));
 bookingsRouter.patch('/:id/cancel', asyncHandler(cancelBookingController));
+bookingsRouter.post('/:id/review', asyncHandler(createReviewController));

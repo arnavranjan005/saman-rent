@@ -17,3 +17,6 @@ export const fetchServices = (params = {}) => {
 
 export const fetchServiceById = (id) =>
   api.get(`/services/${id}`, { auth: false });
+
+export const fetchServiceReviews = (id) =>
+  api.get(`/services/${id}/reviews`, { auth: false });

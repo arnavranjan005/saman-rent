@@ -49,6 +49,7 @@ model User {
   bookings Booking[]
   wishlist Wishlist[]
   otpCodes OtpCode[]
+  reviews  Review[]
 }
 
 model OtpCode {
@@ -112,6 +113,7 @@ model Service {
   images    ServiceImage[]
   bookings  Booking[]
   wishlists Wishlist[]
+  reviews   Review[]
 
   @@index([categoryId])
   @@index([vendorId])
@@ -149,6 +151,24 @@ model Booking {
   @@index([userId])
   @@index([serviceId])
   @@index([status])
+
+  review Review?
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId String   @unique // one review per booking
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  rating    Int // 1..5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@index([serviceId])
+  @@index([userId])
 }
 
 model Wishlist {
