@@ -68,6 +68,9 @@ export default function VendorTabsLayout() {
             }}
           />
         ))}
+        {/* Stack-only screens — must not appear as bottom tabs. */}
+        <Tabs.Screen name="service-new" options={{ href: null }} />
+        <Tabs.Screen name="service/[id]" options={{ href: null }} />
       </Tabs>
     </VendorBootstrap>
   );
