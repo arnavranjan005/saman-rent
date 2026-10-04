@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -13,22 +13,33 @@ const KNOWN_CATEGORIES = ['dj', 'tent', 'cars'];
 export default function CategoryScreen({ showBack = true }) {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const catId = KNOWN_CATEGORIES.includes(id) ? id : 'dj';
+  // No id (Search tab) => search across ALL categories; invalid id => dj.
+  const catId = !id ? null : KNOWN_CATEGORIES.includes(id) ? id : 'dj';
   const { data: categories } = useCategories();
-  const catName =
-    (categories ?? []).find((c) => c.id === catId)?.name ?? 'DJ Booking';
+  const catName = catId
+    ? ((categories ?? []).find((c) => c.id === catId)?.name ?? 'DJ Booking')
+    : 'Search';
   const goBack = () => router.back();
   const openDetails = (v) => router.push({ pathname: '/details', params: { id: v.id } });
   const [f, setF] = useState('All');
-  const [searchOpen, setSearchOpen] = useState(false);
+  // Search tab opens with the box ready; category route opens it on demand.
+  const [searchOpen, setSearchOpen] = useState(!showBack);
   const [searchText, setSearchText] = useState('');
   const [q, setQ] = useState('');
-  const baseParams =
+  // Debounced live search: wait for a typing pause before querying,
+  // so each keystroke doesn't fire an API request.
+  useEffect(() => {
+    if (!searchOpen) return;
+    const t = setTimeout(() => setQ(searchText.trim()), 400);
+    return () => clearTimeout(t);
+  }, [searchText, searchOpen]);
+  const catFilter =
     f === 'Popular'
-      ? { category: catId, tag: 'Popular' }
+      ? { tag: 'Popular' }
       : f === 'Price Low to High'
-        ? { category: catId, sort: 'price_asc' }
-        : { category: catId };
+        ? { sort: 'price_asc' }
+        : {};
+  const baseParams = catId ? { category: catId, ...catFilter } : { ...catFilter };
   const params = q ? { ...baseParams, q } : baseParams;
   const { data, isPending, isError, error, refetch } = useServices(params);
   const list = data?.items ?? [];
