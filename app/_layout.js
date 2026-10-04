@@ -61,7 +61,10 @@ export default function RootLayout() {
       <AuthBootstrap>
         <SafeAreaProvider>
           <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-white">
-            <StatusBar style="auto" />
+            {/* App UI is always light (bg-white), so force dark status-bar
+                icons — "auto" turns them white in phone dark mode,
+                making them invisible on our white background. */}
+            <StatusBar style="dark" />
             <Stack screenOptions={{ headerShown: false }} />
           </SafeAreaView>
         </SafeAreaProvider>
