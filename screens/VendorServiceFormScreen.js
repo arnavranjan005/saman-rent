@@ -13,6 +13,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS } from '../lib/theme';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
+import ScreenHeader from '../components/ScreenHeader';
 import { uploadServiceImage } from '../lib/cloudinary';
 import { resolveImage } from '../lib/serviceImage';
 import { useCategories } from '../hooks/useServices';
@@ -145,14 +146,11 @@ export default function VendorServiceFormScreen() {
 
   return (
     <ScrollView className="flex-1 bg-white p-5" contentContainerStyle={{ paddingBottom: 24 }}>
-      <View className="flex-row items-center mt-2 mb-4">
-        <TouchableOpacity onPress={() => router.back()} testID="vendor-form-back">
-          <Ionicons name="arrow-back" size={22} color="#000" />
-        </TouchableOpacity>
-        <Text className="font-extrabold text-lg ml-3">
-          {isEdit ? 'Edit Service' : 'Add Service'}
-        </Text>
-      </View>
+      <ScreenHeader
+        title={isEdit ? 'Edit Service' : 'Add Service'}
+        onBack={() => router.back()}
+        backTestID="vendor-form-back"
+      />
 
       <Text className="font-semibold text-[13px] mb-1.5">Service Name</Text>
       <TextInput

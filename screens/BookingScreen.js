@@ -15,6 +15,7 @@ import { COLORS } from '../lib/theme';
 import { fmt } from '../lib/format';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
+import ScreenHeader from '../components/ScreenHeader';
 import { useMe } from '../hooks/useAuth';
 import { useCreateBooking } from '../hooks/useBookings';
 import { useService } from '../hooks/useServices';
@@ -54,13 +55,7 @@ export default function BookingScreen() {
   if (!me) {
     return (
       <View className="flex-1 bg-white p-3.5">
-        <View className="flex-row justify-between mt-2 mb-2.5">
-          <TouchableOpacity onPress={goBack} testID="booking-back">
-            <Ionicons name="arrow-back" size={22} color="#000" />
-          </TouchableOpacity>
-          <Text className="font-bold text-base">Book Now</Text>
-          <Text className="text-[22px]"> </Text>
-        </View>
+        <ScreenHeader title="Book Now" onBack={goBack} backTestID="booking-back" />
         <View className="flex-1 items-center justify-center p-6">
           <Text className="text-sm text-[#555] mb-3">Log in to send a booking request.</Text>
           <TouchableOpacity
@@ -94,14 +89,8 @@ export default function BookingScreen() {
       className="flex-1 bg-white"
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View className="flex-1 p-3.5">
-      <View className="flex-row justify-between mt-2 mb-2.5">
-        <TouchableOpacity onPress={goBack} testID="booking-back">
-          <Ionicons name="arrow-back" size={22} color="#000" />
-        </TouchableOpacity>
-        <Text className="font-bold text-base">Book Now</Text>
-        <Text className="text-[22px]"> </Text>
-      </View>
+      <View className="flex-1 bg-white p-3.5">
+      <ScreenHeader title="Book Now" onBack={goBack} backTestID="booking-back" />
       <ScrollView contentContainerStyle={{ paddingBottom: 110 }}>
         <View className="flex-row bg-[#F6F5FF] rounded-[14px] p-3 items-center">
           <Image source={resolveImage(v.img)} className="w-[60px] h-[60px] rounded-xl mr-2.5" />

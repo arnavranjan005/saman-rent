@@ -6,6 +6,7 @@ import VendorCard from '../components/VendorCard';
 import EmptyState from '../components/EmptyState';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
+import ScreenHeader from '../components/ScreenHeader';
 import { useCategories, useServices } from '../hooks/useServices';
 
 const FILTERS = ['All', 'Popular', 'Price Low to High'];
@@ -54,30 +55,28 @@ export default function CategoryScreen({ showBack = true }) {
   };
   return (
     <View className="flex-1 bg-white p-3.5">
-      <View className="flex-row justify-between items-center mt-2 mb-2.5">
-        {showBack ? (
-          <TouchableOpacity onPress={goBack} testID="cat-back">
-            <Ionicons name="arrow-back" size={22} color="#000" />
+      <ScreenHeader
+        title={catName}
+        onBack={showBack ? goBack : null}
+        backTestID="cat-back"
+        right={
+          <TouchableOpacity
+            onPress={() => {
+              if (searchOpen) {
+                setSearchOpen(false);
+                setSearchText('');
+                setQ('');
+              } else {
+                setSearchOpen(true);
+              }
+            }}
+            hitSlop={12}
+            testID="search-toggle-btn"
+          >
+            <Ionicons name={searchOpen ? 'close' : 'search'} size={22} color="#000" />
           </TouchableOpacity>
-        ) : (
-          <View className="w-[22px]" />
-        )}
-        <Text className="font-bold text-base">{catName}</Text>
-        <TouchableOpacity
-          onPress={() => {
-            if (searchOpen) {
-              setSearchOpen(false);
-              setSearchText('');
-              setQ('');
-            } else {
-              setSearchOpen(true);
-            }
-          }}
-          testID="search-toggle-btn"
-        >
-          <Ionicons name={searchOpen ? 'close' : 'search'} size={22} color="#000" />
-        </TouchableOpacity>
-      </View>
+        }
+      />
       {searchOpen && (
         <View className="flex-row items-center border border-[#DDD] rounded-[10px] px-3 mb-3">
           <Ionicons name="search" size={18} color="#999" />
