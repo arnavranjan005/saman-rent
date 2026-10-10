@@ -21,6 +21,8 @@ npm-debug.log*
 .env*.local
 server/.env
 server/.env*.local
+google-services.json
+GoogleService-Info.plist
 !.env.example
 !server/.env.example
 

@@ -6,6 +6,9 @@ export const sendOtp = (phone) =>
 export const verifyOtp = (phone, otp) =>
   api.post('/auth/verify-otp', { phone, otp }, { auth: false });
 
+export const firebaseLogin = (idToken) =>
+  api.post('/auth/firebase', { idToken }, { auth: false });
+
 export const fetchMe = () => api.get('/auth/me');
 
 export const logout = () => api.post('/auth/logout');

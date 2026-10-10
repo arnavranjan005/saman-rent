@@ -7,12 +7,19 @@
     "scheme": "samanrent",
     "primaryColor": "#5B2DF0",
     "android": {
-      "package": "com.samanrent.app"
+      "package": "com.samanrent.app",
+      "googleServicesFile": "./google-services.json"
     },
     "plugins": [
       "expo-asset",
       "expo-status-bar",
       "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "SamanRent uses your location to save event addresses to your address book."
+        }
+      ],
       [
         "expo-build-properties",
         {
@@ -20,7 +27,9 @@
             "usesCleartextTraffic": true
           }
         }
-      ]
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth"
     ]
   }
 }

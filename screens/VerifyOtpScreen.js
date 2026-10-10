@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -9,22 +9,62 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { COLORS } from '../lib/theme';
-import { useSendOtp, useVerifyOtp } from '../hooks/useAuth';
+import { StatusBar } from 'expo-status-bar';
+import AuthBrandHeader from '../components/AuthBrandHeader';
+import {
+  clearPhoneConfirmation,
+  friendlyFirebaseError,
+  getFirebaseAuthModule,
+  getPhoneConfirmation,
+  setPhoneConfirmation,
+} from '../lib/phoneAuth';
+import { useFirebaseLogin, useSendOtp, useVerifyOtp } from '../hooks/useAuth';
 
 const LEN = 6;
 
 export default function VerifyOtpScreen() {
   const router = useRouter();
-  const { phone } = useLocalSearchParams();
+  const { phone, via } = useLocalSearchParams();
+  const isFirebase = via === 'firebase';
   const [digits, setDigits] = useState(Array(LEN).fill(''));
   const [focused, setFocused] = useState(-1);
+  const [fbError, setFbError] = useState('');
+  const [fbConfirming, setFbConfirming] = useState(false);
   const refs = useRef([]);
   const verify = useVerifyOtp();
   const resend = useSendOtp();
+  const firebaseLogin = useFirebaseLogin();
 
   const otp = digits.join('');
   const complete = otp.length === LEN;
+  const pending = verify.isPending || firebaseLogin.isPending || fbConfirming || resend.isPending;
+  const error =
+    fbError ||
+    (verify.isError ? (verify.error?.message ?? 'Incorrect OTP. Try again.') : '') ||
+    (firebaseLogin.isError ? (firebaseLogin.error?.message ?? 'Login failed. Try again.') : '');
+  const loggedIn = !!verify.data || !!firebaseLogin.data;
+
+  // Android auto-verification (instant verification / auto-retrieval) can
+  // sign the user in without a manual code — complete our login then.
+  useEffect(() => {
+    if (!isFirebase) return undefined;
+    const fb = getFirebaseAuthModule();
+    if (!fb) return undefined;
+    const unsub = fb.onAuthStateChanged(fb.getAuth(), async (fbUser) => {
+      if (!fbUser) return;
+      try {
+        const idToken = await fbUser.getIdToken();
+        clearPhoneConfirmation();
+        firebaseLogin.mutate(idToken, {
+          onSuccess: () => router.replace('/(tabs)'),
+        });
+      } catch (e) {
+        setFbError(friendlyFirebaseError(e));
+      }
+    });
+    return unsub;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFirebase]);
 
   const focusBox = (i) => refs.current[i]?.focus();
 
@@ -55,21 +95,83 @@ export default function VerifyOtpScreen() {
     }
   };
 
+  const completeFirebaseLogin = (idToken) => {
+    firebaseLogin.mutate(idToken, {
+      onSuccess: () => router.replace('/(tabs)'),
+    });
+  };
+
   const submit = () => {
-    if (!complete || verify.isPending) return;
-    verify.mutate(
-      { phone: String(phone ?? ''), otp },
-      {
-        onSuccess: () => router.replace('/(tabs)'),
-      },
-    );
+    if (!complete || pending) return;
+    if (!isFirebase) {
+      verify.mutate(
+        { phone: String(phone ?? ''), otp },
+        {
+          onSuccess: () => router.replace('/(tabs)'),
+        },
+      );
+      return;
+    }
+    const confirmation = getPhoneConfirmation(String(phone ?? ''));
+    if (!confirmation) {
+      setFbError('Code expired. Go back and request a new one.');
+      return;
+    }
+    setFbError('');
+    setFbConfirming(true);
+    confirmation
+      .confirm(otp)
+      .then((cred) => cred.user.getIdToken())
+      .then((idToken) => {
+        clearPhoneConfirmation();
+        completeFirebaseLogin(idToken);
+      })
+      .catch((e) => {
+        setFbError(friendlyFirebaseError(e));
+      })
+      .finally(() => {
+        setFbConfirming(false);
+      });
+  };
+
+  const resendCode = () => {
+    if (resend.isPending || fbConfirming) return;
+    if (!isFirebase) {
+      setDigits(Array(LEN).fill(''));
+      focusBox(0);
+      resend.mutate(String(phone ?? ''));
+      return;
+    }
+    const digitsOnly = String(phone ?? '').replace(/\D/g, '');
+    setFbError('');
+    const fb = getFirebaseAuthModule();
+    if (!fb) {
+      // Native module missing (Expo Go) — fall back to server-OTP resend.
+      setDigits(Array(LEN).fill(''));
+      focusBox(0);
+      resend.mutate(String(phone ?? ''));
+      return;
+    }
+    fb.signInWithPhoneNumber(fb.getAuth(), `+91${digitsOnly}`)
+      .then((confirmation) => {
+        setPhoneConfirmation(confirmation, digitsOnly);
+        setDigits(Array(LEN).fill(''));
+        focusBox(0);
+      })
+      .catch((e) => {
+        setFbError(friendlyFirebaseError(e));
+      });
   };
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-white p-5 pt-10"
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View className="flex-1 bg-white">
+      {/* Brand panel is dark — light status-bar icons stay visible on it. */}
+      <StatusBar style="light" />
+      <AuthBrandHeader compact />
+      <KeyboardAvoidingView
+        className="flex-1 px-5 pt-5"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
       <TouchableOpacity onPress={() => router.back()} testID="verify-back">
         <Ionicons name="arrow-back" size={22} color="#000" />
       </TouchableOpacity>
@@ -97,40 +199,37 @@ export default function VerifyOtpScreen() {
           />
         ))}
       </View>
-      {verify.isError && (
+      {!!error && (
         <Text className="text-danger mt-3 font-semibold" testID="verify-error">
-          {verify.error?.message ?? 'Incorrect OTP. Try again.'}
+          {error}
         </Text>
       )}
-      {verify.data && (
+      {loggedIn && (
         <Text className="text-leaf mt-3 font-bold" testID="login-success">
           Logged in successfully.
         </Text>
       )}
       <TouchableOpacity
-        className={`bg-primary rounded-xl p-[15px] items-center mt-5 ${!complete || verify.isPending ? 'opacity-50' : ''}`}
+        className={`bg-primary rounded-xl p-[15px] items-center mt-5 ${!complete || pending ? 'opacity-50' : ''}`}
         onPress={submit}
-        disabled={!complete || verify.isPending}
+        disabled={!complete || pending}
         testID="verify-otp-btn"
       >
         <Text className="text-white font-bold">
-          {verify.isPending ? 'Verifying…' : 'Verify & Log In'}
+          {pending ? 'Verifying…' : 'Verify & Log In'}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
         className="items-center mt-3.5"
-        onPress={() => {
-          setDigits(Array(LEN).fill(''));
-          focusBox(0);
-          resend.mutate(String(phone ?? ''));
-        }}
-        disabled={resend.isPending}
+        onPress={resendCode}
+        disabled={pending}
         testID="resend-otp-btn"
       >
         <Text className="text-primary font-bold">
           {resend.isPending ? 'Resending…' : 'Resend OTP'}
         </Text>
       </TouchableOpacity>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }

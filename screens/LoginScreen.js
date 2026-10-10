@@ -7,32 +7,69 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { COLORS } from '../lib/theme';
+import { StatusBar } from 'expo-status-bar';
+import AuthBrandHeader from '../components/AuthBrandHeader';
+import {
+  friendlyFirebaseError,
+  getFirebaseAuthModule,
+  isMissingNativeModuleError,
+  setPhoneConfirmation,
+} from '../lib/phoneAuth';
 import { useSendOtp } from '../hooks/useAuth';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [phone, setPhone] = useState('');
+  const [fbError, setFbError] = useState('');
+  const [fbPending, setFbPending] = useState(false);
+  // Legacy server-OTP fallback for environments without the Firebase native
+  // module (Expo Go). Production builds always take the Firebase path.
   const sendOtp = useSendOtp();
 
-  const submit = () => {
+  const pending = fbPending || sendOtp.isPending;
+  const error = fbError || (sendOtp.isError ? (sendOtp.error?.message ?? 'Could not send OTP. Try again.') : '');
+
+  const submit = async () => {
+    if (pending) return;
     const digits = phone.replace(/\D/g, '');
-    sendOtp.mutate(digits, {
-      onSuccess: () =>
-        router.push({ pathname: '/verify-otp', params: { phone: digits } }),
-    });
+    setFbError('');
+    // Expo Go has no Firebase native module — skip straight to server OTP.
+    const fb = getFirebaseAuthModule();
+    if (!fb) {
+      sendOtp.mutate(digits, {
+        onSuccess: () => router.push({ pathname: '/verify-otp', params: { phone: digits } }),
+      });
+      return;
+    }
+    setFbPending(true);
+    try {
+      const confirmation = await fb.signInWithPhoneNumber(fb.getAuth(), `+91${digits}`);
+      setPhoneConfirmation(confirmation, digits);
+      router.push({ pathname: '/verify-otp', params: { phone: digits, via: 'firebase' } });
+    } catch (e) {
+      if (isMissingNativeModuleError(e)) {
+        setFbPending(false);
+        sendOtp.mutate(digits, {
+          onSuccess: () => router.push({ pathname: '/verify-otp', params: { phone: digits } }),
+        });
+        return;
+      }
+      setFbError(friendlyFirebaseError(e));
+    } finally {
+      setFbPending(false);
+    }
   };
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-white p-5 justify-center"
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <View className="w-[72px] h-[72px] rounded-full bg-[#F6F5FF] items-center justify-center mb-4">
-        <Ionicons name="phone-portrait-outline" size={40} color={COLORS.primary} />
-      </View>
+    <View className="flex-1 bg-white">
+      {/* Brand panel is dark — light status-bar icons stay visible on it. */}
+      <StatusBar style="light" />
+      <AuthBrandHeader />
+      <KeyboardAvoidingView
+        className="flex-1 px-5 pt-6"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
       <Text className="font-extrabold text-[22px]">Log in to SamanRent</Text>
       <Text className="text-[#666] text-[13px] mt-1.5">
         Enter your mobile number. We will send a 6-digit OTP.
@@ -47,21 +84,22 @@ export default function LoginScreen() {
         onChangeText={setPhone}
         testID="login-phone-input"
       />
-      {sendOtp.isError && (
+      {!!error && (
         <Text className="text-danger mt-2.5 font-semibold" testID="login-error">
-          {sendOtp.error?.message ?? 'Could not send OTP. Try again.'}
+          {error}
         </Text>
       )}
       <TouchableOpacity
-        className={`bg-primary rounded-xl p-[15px] items-center mt-4 ${sendOtp.isPending ? 'opacity-60' : ''}`}
+        className={`bg-primary rounded-xl p-[15px] items-center mt-4 ${pending ? 'opacity-60' : ''}`}
         onPress={submit}
-        disabled={sendOtp.isPending}
+        disabled={pending}
         testID="send-otp-btn"
       >
         <Text className="text-white font-bold">
-          {sendOtp.isPending ? 'Sending OTP…' : 'Send OTP'}
+          {pending ? 'Sending OTP…' : 'Send OTP'}
         </Text>
       </TouchableOpacity>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
