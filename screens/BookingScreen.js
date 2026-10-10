@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -17,9 +17,16 @@ import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
 import ScreenHeader from '../components/ScreenHeader';
 import { useMe } from '../hooks/useAuth';
+import { useAddresses } from '../hooks/useAddresses';
 import { useCreateBooking } from '../hooks/useBookings';
 import { useService } from '../hooks/useServices';
 import { resolveImage } from '../lib/serviceImage';
+
+/** Human-readable one-liner shared with the Address Book cards. */
+function formatAddress(a) {
+  const area = [a.city, a.state].filter(Boolean).join(', ');
+  return `${a.line}${area ? `, ${area}` : ''}${a.postalCode ? ` — ${a.postalCode}` : ''}`;
+}
 
 export default function BookingScreen() {
   const router = useRouter();
@@ -34,6 +41,21 @@ export default function BookingScreen() {
   const [location, setLocation] = useState('');
   const [eventType, setEventType] = useState('Wedding');
   const [notes, setNotes] = useState('');
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const { data: addresses } = useAddresses(Boolean(me));
+  const addressList = addresses ?? [];
+  const autoPicked = useRef(false);
+
+  // Link saved addresses → event location: preselect the default address
+  // once (Flipkart-checkout style). Manual edits still win afterwards.
+  useEffect(() => {
+    if (!autoPicked.current && !location && addressList.length > 0) {
+      autoPicked.current = true;
+      const def = addressList.find((a) => a.isDefault) ?? addressList[0];
+      setSelectedAddressId(def.id);
+      setLocation(formatAddress(def));
+    }
+  }, [addressList, location]);
 
   const goBack = () => router.back();
 
@@ -149,10 +171,49 @@ export default function BookingScreen() {
         <Text className="font-semibold text-[13px] mt-3 mb-1.5">
           <Ionicons name="location-outline" size={12} color="#666" /> Location
         </Text>
+        {addressList.length > 0 && (
+          <View className="gap-2 mb-2">
+            {addressList.map((a) => {
+              const selected = selectedAddressId === a.id;
+              return (
+                <TouchableOpacity
+                  key={a.id}
+                  onPress={() => {
+                    setSelectedAddressId(a.id);
+                    setLocation(formatAddress(a));
+                  }}
+                  className={`flex-row items-center border rounded-[10px] p-3 ${
+                    selected ? 'border-primary bg-[#F6F5FF]' : 'border-[#DDD]'
+                  }`}
+                  testID={`booking-address-${a.id}`}
+                >
+                  <Ionicons
+                    name={selected ? 'radio-button-on' : 'radio-button-off'}
+                    size={18}
+                    color={selected ? COLORS.primary : '#999'}
+                  />
+                  <View className="ml-2 flex-1">
+                    <Text className="font-bold text-[13px]">
+                      {a.label}
+                      {a.isDefault ? ' • Default' : ''}
+                    </Text>
+                    <Text className="text-[12px] text-[#666]">{formatAddress(a)}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+            <TouchableOpacity onPress={() => router.push('/address-book')} testID="booking-address-manage">
+              <Text className="text-primary font-bold text-[13px]">+ Add / manage addresses</Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <TextInput
           className="border border-[#DDD] rounded-[10px] p-3 text-sm"
           value={loc}
-          onChangeText={setLocation}
+          onChangeText={(t) => {
+            setLocation(t);
+            setSelectedAddressId(null);
+          }}
           placeholder={v.location}
           testID="field-loc"
         />
