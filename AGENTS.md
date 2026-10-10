@@ -55,10 +55,11 @@ TanStack Query, Express TS API, Prisma ORM, Neon PG, Cloudinary images.
   recomputes service `rating`/`reviewsCount` in-transaction. Public list is
   newest-first with **masked phones** (`+91 98******10`) — never expose full
   numbers.
-- Catalog visibility: `status ACTIVE` only. Home "Popular" rail = `tag:
+- Catalog visibility: `status ACTIVE` **AND vendor `APPROVED`** (Phase 10 gating:
+  `catalogService` home/list/detail + `bookingService.createBooking` all filter
+  `vendor: { status: 'APPROVED' }`). Home "Popular" rail = `tag:
   'Popular'`, take 4. Category screens always filter by their category.
-  Search tab searches ALL categories (debounced 400ms). Vendor approval does
-  NOT gate catalog yet (Phase 10 admin must add that rule).
+  Search tab searches ALL categories (debounced 400ms).
 - Images: signed Cloudinary uploads. Secret stays server-side
   (`POST /uploads/signature`); client uploads direct to Cloudinary.
 
@@ -151,8 +152,19 @@ TanStack Query, Express TS API, Prisma ORM, Neon PG, Cloudinary images.
 
 ## 8. Current state (Oct 2026)
 
-Done through Phase 11 + extras: marketplace E2E, vendor panel, pull-to-refresh
-everywhere, session-expiry handling, ownership isolation (11/11 suite →
-now 14/14 with reviews), debounced all-category search, shared headers,
-customer ratings with recomputed averages. **Phase 10 admin is the remaining
-critical path** (vendor approval UI + the catalog gating rule in §3).
+Done through Phase 11 + extras + **Phase 10 admin**: marketplace E2E, vendor panel, pull-to-refresh
+everywhere, session-expiry handling, ownership isolation, debounced all-category search, shared headers,
+customer ratings with recomputed averages. Phase 10: email+password admin auth
+(`User.role ADMIN`, `POST /admin/auth/login`, `requireAdmin`), admin
+vendors/services/bookings APIs (`/api/v1/admin/*`), catalog gating
+(ACTIVE + vendor APPROVED), Vite React dashboard in `admin/` (`:5173`,
+Tailwind + react-query). Address book (`Address` model, `/api/v1/addresses`,
+`expo-location` auto-fill, booking prefill) + Instagram-style optimistic
+wishlist toggle (instant flip, 350ms trailing sync, `wishlistMutationLimiter`
+60/min). Suite: **28/28 green** (`admin.test.ts` 5/5, `address.test.ts` 4/4,
+`firebase-auth.test.ts` 5/5, Firebase mocked).
+Test runner note: `vitest.config.ts` uses `maxWorkers: 1` (serial) —
+`poolOptions.forks.singleFork` is ignored on Vitest 5+, and parallel runs
+race on the shared dev DB (P2002 phones, phantom orphans).
+Admin bootstrap: `npm run db:seed:admin` (reads `ADMIN_EMAIL`/`ADMIN_PASSWORD`
+from gitignored `server/.env`).
