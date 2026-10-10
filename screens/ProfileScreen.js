@@ -11,6 +11,7 @@ import SectionHeader from '../components/SectionHeader';
 
 const MENU = [
   { label: 'My Wishlist', icon: 'heart-outline', route: '/(tabs)/wishlist' },
+  { label: 'Address Book', icon: 'location-outline', route: '/address-book' },
   { label: 'Vendor Mode', icon: 'storefront-outline', route: '/(vendor)' },
   { label: 'Help & Support', icon: 'help-circle-outline', route: '/help' },
   { label: 'About Us', icon: 'information-circle-outline', route: '/about' },
@@ -49,6 +50,7 @@ export default function ProfileScreen() {
   };
 
   const goTab = (tab) => router.push(`/(tabs)/${tab}`);
+  const openBooking = (id) => router.push({ pathname: '/booking-detail', params: { id } });
 
   return (
     <ScrollView
@@ -95,7 +97,12 @@ export default function ProfileScreen() {
         <Text className="text-xs text-muted mb-2.5">No bookings yet.</Text>
       ) : (
         (bookings ?? []).slice(0, 3).map((b) => (
-          <View key={b.id} className="flex-row bg-[#F8F7FF] rounded-xl p-2.5 mb-2.5 items-center" testID={`booking-${b.id}`}>
+          <TouchableOpacity
+            key={b.id}
+            className="flex-row bg-[#F8F7FF] rounded-xl p-2.5 mb-2.5 items-center"
+            onPress={() => openBooking(b.id)}
+            testID={`booking-${b.id}`}
+          >
             <Image source={resolveImage(b.service.img)} className="w-[52px] h-[52px] rounded-[10px]" />
             <View className="flex-1 ml-2.5">
               <Text className="font-bold text-[13px]">{b.service.name}</Text>
@@ -105,7 +112,7 @@ export default function ProfileScreen() {
               </Text>
             </View>
             <Text className={statusPillClass(b.status)}>{b.status}</Text>
-          </View>
+          </TouchableOpacity>
         ))
       )}
       {MENU.map((m) => (
@@ -120,7 +127,9 @@ export default function ProfileScreen() {
               ? 'profile-menu-logout'
               : m.label === 'My Wishlist'
                 ? 'profile-menu-wishlist'
-                : m.label === 'Vendor Mode'
+                : m.label === 'Address Book'
+                  ? 'profile-menu-addresses'
+                  : m.label === 'Vendor Mode'
                   ? 'profile-menu-vendor'
                   : m.label === 'Help & Support'
                     ? 'profile-menu-help'
