@@ -17,6 +17,9 @@ async function completedBooking() {
     .set(v.header)
     .send({ name: 'Review Probe', categoryId: 'dj', price: 5000 });
   const serviceId = created.body.data.id;
+  // Phase 10: bookings require an APPROVED vendor — approve directly here
+  // (the approval flow itself is covered in admin.test.ts).
+  await prisma.vendor.update({ where: { id: v.vendor.id }, data: { status: 'APPROVED' } });
   await prisma.service.update({ where: { id: serviceId }, data: { status: 'ACTIVE' } });
 
   const booking = await request(app).post('/api/v1/bookings').set(c.header).send({

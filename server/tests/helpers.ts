@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import request from 'supertest';
 import { PrismaClient } from '@prisma/client';
 import { createApp } from '../src/app';
@@ -40,7 +41,9 @@ export async function vendorAuth() {
 
 /** First ACTIVE service id for booking tests. */
 export async function activeServiceId() {
-  const svc = await prisma.service.findFirst({ where: { status: 'ACTIVE' } });
+  const svc = await prisma.service.findFirst({
+    where: { status: 'ACTIVE', vendor: { status: 'APPROVED' } },
+  });
   if (!svc) throw new Error('No ACTIVE service to test against — run the seed first.');
   return svc.id;
 }
@@ -63,4 +66,33 @@ export async function cleanupVendor(email: string) {
     await prisma.service.deleteMany({ where: { id: { in: serviceIds } } });
   }
   await prisma.vendor.deleteMany({ where: { id: { in: ids } } });
+}
+
+/**
+ * Throwaway admin: created directly with role ADMIN, then logged in through
+ * the real POST /admin/auth/login endpoint. The sentinel phone can never
+ * pass normalizePhone, so the OTP backdoor cannot touch this row.
+ */
+export async function adminAuth() {
+  const t = tag();
+  const email = `${t}@admin.samanrent`;
+  const password = 'adminpass123';
+  await prisma.user.create({
+    data: {
+      phone: `admin:${email}`,
+      email,
+      passwordHash: await bcrypt.hash(password, 10),
+      role: 'ADMIN',
+    },
+  });
+  const login = await request(app).post('/api/v1/admin/auth/login').send({ email, password });
+  if (login.status !== 200) throw new Error(`admin login failed: ${login.status}`);
+  return {
+    header: { Authorization: `Bearer ${login.body.data.token}` },
+    email,
+  };
+}
+
+export async function cleanupAdmin(email: string) {
+  await prisma.user.deleteMany({ where: { email } });
 }

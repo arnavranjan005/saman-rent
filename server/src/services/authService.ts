@@ -9,6 +9,7 @@ import {
   otpEquals,
 } from '../lib/otp';
 import { getPrisma } from '../lib/prisma';
+import { verifyFirebaseIdToken } from '../lib/firebase';
 import { ApiError } from '../utils/ApiError';
 
 function db() {
@@ -114,4 +115,30 @@ export async function getMe(userId: string) {
   });
   if (!user) throw ApiError.notFound('User not found.', 'USER_NOT_FOUND');
   return user;
+}
+
+/**
+ * Customer login via Firebase phone auth. The app verifies the SMS code with
+ * Firebase and sends the resulting ID token here; we verify it server-side,
+ * then find-or-create the user by the token's verified phone number and
+ * return our own JWT (same shape as verifyOtp).
+ */
+export async function loginWithFirebaseIdToken(idToken: string) {
+  const { phoneNumber } = await verifyFirebaseIdToken(idToken);
+  const phone = phoneNumber ? normalizePhone(phoneNumber) : null;
+  if (!phone) {
+    throw ApiError.badRequest('This login method requires a verified phone number.', 'INVALID_PHONE');
+  }
+  const prisma = db();
+  // Upsert (not find-then-create): two simultaneous logins for the same
+  // phone must converge on one row instead of racing on the unique key.
+  const user = await prisma.user.upsert({
+    where: { phone },
+    update: {},
+    create: { phone },
+  });
+  return {
+    token: signAccessToken(user.id, user.role),
+    user: { id: user.id, phone: user.phone, name: user.name, role: user.role },
+  };
 }

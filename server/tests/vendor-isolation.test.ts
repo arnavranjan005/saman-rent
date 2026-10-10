@@ -59,6 +59,8 @@ describe('role + ownership isolation', () => {
       const serviceId = created.body.data.id;
 
       // Vendor services start PENDING_APPROVAL — flip ACTIVE directly for the test.
+      // Phase 10: bookings also require an APPROVED vendor (see admin.test.ts).
+      await prisma.vendor.update({ where: { id: v.vendor.id }, data: { status: 'APPROVED' } });
       await prisma.service.update({ where: { id: serviceId }, data: { status: 'ACTIVE' } });
 
       const booking = await request(app)

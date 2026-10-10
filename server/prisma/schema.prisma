@@ -39,17 +39,20 @@ enum BookingStatus {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  phone     String   @unique
-  name      String?
-  role      Role     @default(CUSTOMER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  phone        String   @unique
+  email        String?  @unique
+  passwordHash String?
+  name         String?
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   bookings Booking[]
   wishlist Wishlist[]
   otpCodes OtpCode[]
   reviews  Review[]
+  addresses Address[]
 }
 
 model OtpCode {
@@ -179,4 +182,22 @@ model Wishlist {
   createdAt DateTime @default(now())
 
   @@id([userId, serviceId])
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  label     String // Home | Work | Other
+  line      String // street address text
+  city      String?
+  state     String?
+  postalCode String?
+  latitude  Float // GPS from the app (expo-location)
+  longitude Float
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }

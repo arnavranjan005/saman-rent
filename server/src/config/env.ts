@@ -11,6 +11,14 @@ const EnvSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
+  // Phase 10 admin bootstrap (seed-admin.ts). Never commit real values.
+  ADMIN_EMAIL: z.string().optional(),
+  ADMIN_PASSWORD: z.string().optional(),
+  // Firebase phone auth (customer login). Service-account fields only —
+  // the private key stays server-side. Required for POST /auth/firebase.
+  FIREBASE_PROJECT_ID: z.string().optional(),
+  FIREBASE_CLIENT_EMAIL: z.string().optional(),
+  FIREBASE_PRIVATE_KEY: z.string().optional(),
 });
 
 export const env = EnvSchema.parse(process.env);

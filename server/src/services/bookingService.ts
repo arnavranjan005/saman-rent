@@ -81,8 +81,10 @@ export interface CreateBookingInput {
  */
 export async function createBooking(userId: string, input: CreateBookingInput) {
   const prisma = db();
+  // Phase 10: only book services that are ACTIVE and belong to an APPROVED
+  // vendor. Same 404 shape as before — never leak the vendor's status.
   const service = await prisma.service.findFirst({
-    where: { id: input.serviceId, status: 'ACTIVE' },
+    where: { id: input.serviceId, status: 'ACTIVE', vendor: { status: 'APPROVED' } },
     select: { id: true, price: true },
   });
   if (!service) throw ApiError.notFound('Service not found.', 'SERVICE_NOT_FOUND');

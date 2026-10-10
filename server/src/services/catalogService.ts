@@ -61,7 +61,8 @@ export async function getHome() {
   const [categories, popular] = await Promise.all([
     prisma.category.findMany({ orderBy: { sortOrder: 'asc' } }),
     prisma.service.findMany({
-      where: { status: 'ACTIVE', tag: 'Popular' },
+      // Phase 10: only services of APPROVED vendors are publicly visible.
+      where: { status: 'ACTIVE', vendor: { status: 'APPROVED' }, tag: 'Popular' },
       include: serviceInclude,
       orderBy: { rating: 'desc' },
       take: 4,
@@ -86,7 +87,9 @@ export async function getServices(query: ServiceQuery) {
   const page = Math.max(1, query.page ?? 1);
   const limit = Math.min(50, Math.max(1, query.limit ?? 20));
 
-  const where: Prisma.ServiceWhereInput = { status: 'ACTIVE' };
+  // Phase 10: vendor approval gates the catalog — hide services whose
+  // vendor is PENDING or DISABLED.
+  const where: Prisma.ServiceWhereInput = { status: 'ACTIVE', vendor: { status: 'APPROVED' } };
   if (query.category) where.categoryId = query.category;
   if (query.tag) where.tag = query.tag;
   if (query.q) {
@@ -130,7 +133,7 @@ export async function getServices(query: ServiceQuery) {
 
 export async function getServiceById(id: string) {
   const service = await db().service.findFirst({
-    where: { id, status: 'ACTIVE' },
+    where: { id, status: 'ACTIVE', vendor: { status: 'APPROVED' } },
     include: serviceInclude,
   });
   if (!service) throw ApiError.notFound('Service not found.', 'SERVICE_NOT_FOUND');
